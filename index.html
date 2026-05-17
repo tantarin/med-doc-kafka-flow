@@ -3,797 +3,798 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Отправка мед документа в Kafka — схема</title>
+<title>Как медицинский документ попадает в ЕГИСЗ</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0f1117;
-    color: #e2e8f0;
-    min-height: 100vh;
-    padding: 32px 16px;
-  }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0d1117;
+  color: #cdd9e5;
+  min-height: 100vh;
+  padding: 36px 24px 60px;
+}
 
-  h1 {
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #a78bfa;
-    margin-bottom: 8px;
-    letter-spacing: 0.02em;
-  }
+/* ── PAGE HEADER ── */
+.page-title {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 6px;
+}
+.page-sub {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6e7681;
+  margin-bottom: 10px;
+}
+.page-hint {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #444c56;
+  margin-bottom: 40px;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:.4} 50%{opacity:1} }
 
-  .subtitle {
-    text-align: center;
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-bottom: 40px;
-  }
+/* ── PHASE LABEL ── */
+.phase-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #6e7681;
+  margin-bottom: 14px;
+  padding-left: 4px;
+}
 
-  /* ─── DIAGRAM WRAPPER ─── */
-  .diagram {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    max-width: 860px;
-    margin: 0 auto;
-  }
+/* ── SCROLL WRAPPER ── */
+.scroll-wrapper { overflow-x: auto; padding-bottom: 8px; }
 
-  /* ─── SECTION LABELS ─── */
-  .service-row {
-    display: flex;
-    width: 100%;
-    gap: 16px;
-    align-items: flex-start;
-  }
+/* ── FLOW ROW ── */
+.flow-row {
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
+  gap: 0;
+  margin-bottom: 32px;
+}
 
-  .service-label {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #475569;
-    white-space: nowrap;
-    padding: 8px 4px;
-    min-width: 24px;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── SERVICE BOX ── */
+.svc {
+  width: 185px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
 
-  .service-label.optima { color: #818cf8; border-left: 2px solid #3730a3; }
-  .service-label.n3health { color: #34d399; border-left: 2px solid #065f46; }
-  .service-label.egisz { color: #fb923c; border-left: 2px solid #7c2d12; }
+/* color themes */
+.svc.actor    { background: #1a1038; border-color: #6e40c9; }
+.svc.frontend { background: #0d2136; border-color: #1f6feb; }
+.svc.backend  { background: #131d2e; border-color: #388bfd; }
+.svc.queue    { background: #1e1208; border-color: #d29922; }
+.svc.n3h      { background: #0d1f14; border-color: #3fb950; }
+.svc.egisz    { background: #1f1206; border-color: #f0883e; }
 
-  .flow-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
+.svc-head {
+  padding: 14px 12px 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.svc-icon { font-size: 1.9rem; line-height: 1; }
+.svc-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 7px;
+  color: #e6edf3;
+  line-height: 1.3;
+}
+.svc-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-top: 5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  opacity: .85;
+}
+.actor .svc-tag    { background: #6e40c9; color: #e2d9f3; }
+.frontend .svc-tag { background: #1f6feb; color: #cae8ff; }
+.backend .svc-tag  { background: #388bfd; color: #cae8ff; }
+.queue .svc-tag    { background: #d29922; color: #fff3cd; }
+.n3h .svc-tag      { background: #3fb950; color: #d2f4dc; }
+.egisz .svc-tag    { background: #f0883e; color: #ffe0b2; }
 
-  /* ─── NODES ─── */
-  .node {
-    position: relative;
-    cursor: pointer;
-    border-radius: 10px;
-    padding: 12px 18px;
-    text-align: center;
-    font-size: 0.78rem;
-    font-weight: 500;
-    line-height: 1.4;
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-    user-select: none;
-    width: 100%;
-  }
+.svc-body {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+}
 
-  .node:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.15);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
+/* ── STEP ITEM ── */
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.04);
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #adbac7;
+}
+.step:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.15);
+  transform: translateY(-1px);
+  color: #e6edf3;
+}
+.step-num {
+  font-size: 0.62rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 16px;
+  text-align: right;
+  opacity: .45;
+}
+.step-icon { flex-shrink: 0; font-size: 0.9rem; }
 
-  .node:active { transform: translateY(0); }
+/* ── CONNECTOR (arrow between services) ── */
+.conn {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 88px; /* align vertically with svc-body */
+  gap: 6px;
+}
 
-  .node .label { font-size: 0.65rem; opacity: 0.7; margin-bottom: 2px; }
-  .node .title { font-weight: 600; }
-  .node .sub { font-size: 0.68rem; opacity: 0.65; margin-top: 3px; font-family: monospace; }
+.arrow-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 2px;
+}
+.arrow-lbl {
+  font-size: 0.56rem;
+  color: #444c56;
+  text-align: center;
+  line-height: 1.3;
+  max-width: 52px;
+}
+.arrow-line {
+  width: 100%;
+  height: 2px;
+  position: relative;
+}
+.arrow-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  border-left: 9px solid currentColor;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
 
-  /* node types */
-  .node-http {
-    background: linear-gradient(135deg, #1e1b4b, #312e81);
-    border: 1px solid #4338ca;
-    color: #c7d2fe;
-  }
-  .node-service {
-    background: linear-gradient(135deg, #1e1b4b, #1e3a5f);
-    border: 1px solid #3b82f6;
-    color: #bfdbfe;
-  }
-  .node-kafka {
-    background: linear-gradient(135deg, #1c1917, #292524);
-    border: 1px solid #f97316;
-    color: #fed7aa;
-  }
-  .node-consumer {
-    background: linear-gradient(135deg, #0d1f0d, #14532d);
-    border: 1px solid #22c55e;
-    color: #bbf7d0;
-  }
-  .node-rest {
-    background: linear-gradient(135deg, #451a03, #7c2d12);
-    border: 1px solid #fb923c;
-    color: #fde68a;
-  }
-  .node-decision {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border: 1px solid #a78bfa;
-    color: #ddd6fe;
-  }
-  .node-redis {
-    background: linear-gradient(135deg, #2d0000, #7f1d1d);
-    border: 1px solid #ef4444;
-    color: #fca5a5;
-  }
+/* forward arrow */
+.arr-fwd .arrow-line { background: #30363d; color: #30363d; }
+.arr-fwd .arrow-lbl { color: #555d6a; }
 
-  /* ─── ARROWS ─── */
-  .arrow {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 4px 0;
-    width: 100%;
-  }
+/* return arrow (dashed) */
+.arr-ret .arrow-line {
+  background: none;
+  border-top: 2px dashed #2a3340;
+  height: 0;
+  color: #2a3340;
+  margin-top: 12px;
+}
+.arr-ret .arrow-line::after {
+  right: auto;
+  left: -1px;
+  border-left: none;
+  border-right: 9px solid #2a3340;
+  top: -4px;
+}
+.arr-ret .arrow-lbl { color: #3a4450; margin-top: 4px; }
 
-  .arrow-line {
-    width: 2px;
-    background: #334155;
-    flex: 1;
-    min-height: 18px;
-  }
+/* ── STATUS BADGE (inside step) ── */
+.badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.badge-ok  { background: #1a3020; color: #3fb950; }
+.badge-err { background: #2d1010; color: #f85149; }
 
-  .arrow-label {
-    font-size: 0.62rem;
-    color: #64748b;
-    background: #0f1117;
-    padding: 1px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
-  }
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(1,4,9,.8);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+.overlay.open { display: flex; }
 
-  .arrow-head {
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 10px solid #334155;
-  }
+.modal {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  max-width: 540px;
+  width: 100%;
+  padding: 28px 28px 24px;
+  position: relative;
+  animation: popIn .18s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+}
+@keyframes popIn { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
 
-  /* kafka arrow orange */
-  .arrow.kafka .arrow-line { background: #f97316; }
-  .arrow.kafka .arrow-head { border-top-color: #f97316; }
-  .arrow.kafka .arrow-label { color: #fed7aa; }
+.modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: .9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.modal-close:hover { background: #30363d; color: #cdd9e5; }
 
-  /* success arrow green */
-  .arrow.success .arrow-line { background: #22c55e; }
-  .arrow.success .arrow-head { border-top-color: #22c55e; }
-  .arrow.success .arrow-label { color: #bbf7d0; }
+.modal-icon { font-size: 2.2rem; margin-bottom: 10px; }
+.modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-bottom: 14px;
+  line-height: 1.3;
+}
+.modal-body {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: #8b949e;
+}
+.modal-body p { margin-bottom: 12px; }
+.modal-body p:last-child { margin-bottom: 0; }
+.modal-body strong { color: #cdd9e5; }
+.modal-body em { color: #58a6ff; font-style: normal; }
 
-  /* ─── SPLIT LAYOUT ─── */
-  .split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    align-items: start;
-  }
-
-  .split-side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-
-  /* ─── MODAL OVERLAY ─── */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-  }
-
-  .overlay.active { display: flex; }
-
-  .modal {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 16px;
-    max-width: 600px;
-    width: 100%;
-    padding: 28px;
-    position: relative;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
-    animation: pop 0.2s ease;
-  }
-
-  @keyframes pop {
-    from { transform: scale(0.92); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: #334155;
-    border: none;
-    color: #94a3b8;
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    transition: background 0.15s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .modal-close:hover { background: #475569; color: #e2e8f0; }
-
-  .modal-icon { font-size: 2rem; margin-bottom: 10px; }
-
-  .modal-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #e2e8f0;
-    margin-bottom: 6px;
-  }
-
-  .modal-file {
-    font-size: 0.7rem;
-    font-family: monospace;
-    color: #64748b;
-    margin-bottom: 16px;
-    background: #0f1117;
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    border: 1px solid #1e293b;
-  }
-
-  .modal-body {
-    font-size: 0.85rem;
-    line-height: 1.65;
-    color: #cbd5e1;
-  }
-
-  .modal-body p { margin-bottom: 10px; }
-  .modal-body p:last-child { margin-bottom: 0; }
-
-  .modal-body strong { color: #a78bfa; }
-  .modal-body code {
-    font-family: monospace;
-    background: #0f1117;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 0.8rem;
-    color: #fb923c;
-  }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-  }
-  .tag.http   { background: #312e81; color: #c7d2fe; }
-  .tag.kafka  { background: #431407; color: #fed7aa; }
-  .tag.service{ background: #1e3a5f; color: #bfdbfe; }
-  .tag.arch   { background: #2d1b69; color: #ddd6fe; }
-  .tag.redis  { background: #450a0a; color: #fca5a5; }
-
-  /* ─── LEGEND ─── */
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    max-width: 860px;
-    margin: 40px auto 0;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.7rem;
-    color: #64748b;
-  }
-
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .hint {
-    text-align: center;
-    font-size: 0.72rem;
-    color: #475569;
-    margin-top: 16px;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 40px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.7rem;
+  color: #6e7681;
+}
+.legend-dot {
+  width: 11px; height: 11px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body>
 
-<h1>Отправка мед документа в ЕГИСЗ / N3Health</h1>
-<p class="subtitle">optima-2-backend · n3health-backend · Kafka · Redis</p>
-<p class="hint">↓ Кликай на любой блок — узнай, почему так сделано</p>
+<h1 class="page-title">Как медицинский документ попадает в ЕГИСЗ</h1>
+<p class="page-sub">Путь от осмотра врача до государственного реестра</p>
+<p class="page-hint">Нажми на любой шаг — узнай, что происходит и почему</p>
 
-<div class="diagram" style="margin-top: 24px;">
+<div class="scroll-wrapper">
 
-  <!-- STEP 1: HTTP -->
-  <div style="width:100%; max-width:860px;">
-    <div class="node node-http" onclick="openModal('http')">
-      <div class="label">Инициатор</div>
-      <div class="title">POST /orders/{orderId}/n3health</div>
-      <div class="sub">OrderController.java:205 · N3HealthSignRequest в body</div>
-    </div>
-  </div>
+  <!-- ════════════════════════════════════════════════
+       ФАЗА 1: ОТПРАВКА
+  ════════════════════════════════════════════════ -->
+  <p class="phase-label">① Врач отправляет документ</p>
+  <div class="flow-row">
 
-  <div class="arrow">
-    <div class="arrow-line" style="min-height:12px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP 2: Agreement + Redis Lock -->
-  <div class="split" style="max-width:860px;">
-    <div class="split-side">
-      <div class="node node-service" onclick="openModal('agreement')">
-        <div class="label">Проверка</div>
-        <div class="title">Согласие клиента на N3Health</div>
-        <div class="sub">ClientAgreementValidator · N3HEALTH тип</div>
+    <!-- ВРАЧ -->
+    <div class="svc actor">
+      <div class="svc-head">
+        <div class="svc-icon">🧑‍⚕️</div>
+        <div class="svc-name">Врач в оптике</div>
+        <span class="svc-tag">Пользователь</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('exam')">
+          <span class="step-num">1</span>
+          <span class="step-icon">👁️</span>
+          <span>Проводит проверку зрения и оформляет результат</span>
+        </div>
+        <div class="step" onclick="open_modal('btn')">
+          <span class="step-num">2</span>
+          <span class="step-icon">🖱️</span>
+          <span>Нажимает «Отправить в ЕГИСЗ»</span>
+        </div>
       </div>
     </div>
-    <div class="split-side">
-      <div class="node node-redis" onclick="openModal('redis')">
-        <div class="label">Защита от дублей</div>
-        <div class="title">Redis Lock</div>
-        <div class="sub">N3HealthRedisLock.tryLock(orderId, clientId)</div>
+
+    <!-- → -->
+    <div class="conn">
+      <div class="arrow-wrap arr-fwd">
+        <div class="arrow-lbl">запрос</div>
+        <div class="arrow-line"></div>
       </div>
     </div>
-  </div>
 
-  <div class="arrow">
-    <div class="arrow-line" style="min-height:8px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP 3: Decision -->
-  <div style="width:100%; max-width:860px;">
-    <div class="node node-decision" onclick="openModal('decision')">
-      <div class="label">Условие</div>
-      <div class="title">order.getMedDocumentStatus() == null ?</div>
-      <div class="sub">Первичная отправка vs. обновление документа</div>
-    </div>
-  </div>
-
-  <!-- SPLIT: first send branch -->
-  <div class="split" style="max-width:860px; margin-top:0;">
-    <div class="split-side">
-      <div class="arrow" style="width:2px; min-height:16px; margin:0 auto;">
-        <div class="arrow-line" style="min-height:12px; background: #a78bfa;"></div>
-        <div class="arrow-label" style="color:#a78bfa;">Первая отправка</div>
-        <div class="arrow-head" style="border-top-color:#a78bfa;"></div>
+    <!-- ФРОНТЕНД -->
+    <div class="svc frontend">
+      <div class="svc-head">
+        <div class="svc-icon">💻</div>
+        <div class="svc-name">Программа Optima</div>
+        <span class="svc-tag">Интерфейс</span>
       </div>
-      <div class="node node-kafka" onclick="openModal('addpatient')">
-        <div class="label">Kafka → optimaIn</div>
-        <div class="title">N3healthPatientUpdated</div>
-        <div class="sub">AddPatientXml (регистрация пациента в МПИ)</div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('preview')">
+          <span class="step-num">3</span>
+          <span class="step-icon">📋</span>
+          <span>Показывает врачу предпросмотр документа</span>
+        </div>
+        <div class="step" onclick="open_modal('sign')">
+          <span class="step-num">4</span>
+          <span class="step-icon">✍️</span>
+          <span>Врач подтверждает — программа отправляет на сервер</span>
+        </div>
       </div>
     </div>
-    <div class="split-side">
-      <div class="arrow" style="width:2px; min-height:16px; margin:0 auto;">
-        <div class="arrow-line" style="min-height:12px; background: #64748b;"></div>
-        <div class="arrow-label">Всегда</div>
-        <div class="arrow-head" style="border-top-color:#64748b;"></div>
-      </div>
-      <div class="node node-kafka" onclick="openModal('addmedrecord')">
-        <div class="label">Kafka → optimaIn</div>
-        <div class="title">N3healthAddMedRecord</div>
-        <div class="sub">AddMedRecordXml · Avro-схема · ключ = tenant</div>
+
+    <!-- → -->
+    <div class="conn">
+      <div class="arrow-wrap arr-fwd">
+        <div class="arrow-lbl">POST запрос</div>
+        <div class="arrow-line"></div>
       </div>
     </div>
-  </div>
 
-  <div class="arrow kafka">
-    <div class="arrow-label">consumer: N3HealthAddMedRecordHandler</div>
-    <div class="arrow-line" style="min-height:14px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP: Consumer + REST -->
-  <div class="split" style="max-width:860px;">
-    <div class="split-side">
-      <div class="node node-consumer" onclick="openModal('handler')">
-        <div class="label">Kafka Consumer · optima-2-backend</div>
-        <div class="title">N3HealthAddMedRecordHandler</div>
-        <div class="sub">Извлекает orderId и idLpu из XML-тегов</div>
+    <!-- СЕРВЕР OPTIMA -->
+    <div class="svc backend">
+      <div class="svc-head">
+        <div class="svc-icon">🖥️</div>
+        <div class="svc-name">Сервер Optima</div>
+        <span class="svc-tag">optima-2-backend</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('agreement')">
+          <span class="step-num">5</span>
+          <span class="step-icon">📜</span>
+          <span>Проверяет, что пациент дал согласие на передачу данных</span>
+        </div>
+        <div class="step" onclick="open_modal('lock')">
+          <span class="step-num">6</span>
+          <span class="step-icon">🔒</span>
+          <span>Блокирует повторную отправку того же документа</span>
+        </div>
+        <div class="step" onclick="open_modal('firsttime')">
+          <span class="step-num">7</span>
+          <span class="step-icon">👤</span>
+          <span>Первый раз? Сначала регистрирует пациента в ЕГИСЗ</span>
+        </div>
+        <div class="step" onclick="open_modal('xml')">
+          <span class="step-num">8</span>
+          <span class="step-icon">📄</span>
+          <span>Формирует медицинский документ в нужном формате</span>
+        </div>
+        <div class="step" onclick="open_modal('toqueue')">
+          <span class="step-num">9</span>
+          <span class="step-icon">📤</span>
+          <span>Кладёт документ в очередь на отправку</span>
+        </div>
       </div>
     </div>
-    <div class="split-side">
-      <div class="node node-rest" onclick="openModal('n3rest')">
-        <div class="label">REST → внешний сервис</div>
-        <div class="title">N3Health API</div>
-        <div class="sub">POST addMedRecord · text/xml · ЕГИСЗ</div>
+
+    <!-- → -->
+    <div class="conn">
+      <div class="arrow-wrap arr-fwd">
+        <div class="arrow-lbl">документ</div>
+        <div class="arrow-line"></div>
       </div>
     </div>
-  </div>
 
-  <div class="arrow success">
-    <div class="arrow-label">HTTP 200 OK → создаёт комментарий к заказу</div>
-    <div class="arrow-line" style="min-height:14px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP: EventLog request to Kafka -->
-  <div style="width:100%; max-width:860px;">
-    <div class="node node-kafka" onclick="openModal('eventlogrequest')">
-      <div class="label">Kafka → event-log.in · N3HealthEventLogRequestProducer</div>
-      <div class="title">N3healthEventLogRequest</div>
-      <div class="sub">orderId · idLpu · tenant · createdAt → запрос статуса из ЕГИСЗ</div>
-    </div>
-  </div>
-
-  <div class="arrow kafka">
-    <div class="arrow-label">consumer: n3health-backend · KafkaConsumerService</div>
-    <div class="arrow-line" style="min-height:14px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP: n3health polling + status -->
-  <div class="split" style="max-width:860px;">
-    <div class="split-side">
-      <div class="node node-consumer" onclick="openModal('eventlogservice')" style="border-color:#34d399; color:#a7f3d0;">
-        <div class="label">n3health-backend · EventLogService</div>
-        <div class="title">requestStatus() + Retry + CircuitBreaker</div>
-        <div class="sub">Rate limit через Redis bucket4j · backoff с multiplier</div>
+    <!-- ОЧЕРЕДЬ -->
+    <div class="svc queue">
+      <div class="svc-head">
+        <div class="svc-icon">📬</div>
+        <div class="svc-name">Очередь сообщений</div>
+        <span class="svc-tag">Apache Kafka</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('kafka')">
+          <span class="step-num">10</span>
+          <span class="step-icon">💾</span>
+          <span>Надёжно сохраняет документ и гарантирует доставку</span>
+        </div>
+        <div class="step" onclick="open_modal('kafka2')">
+          <span class="step-num">11</span>
+          <span class="step-icon">🔄</span>
+          <span>Сервер забирает документ и отправляет в ЕГИСЗ</span>
+        </div>
       </div>
     </div>
-    <div class="split-side">
-      <div class="node node-rest" onclick="openModal('egisz')">
-        <div class="label">REST → ЕГИСЗ N3Health</div>
-        <div class="title">Опрос статуса документа</div>
-        <div class="sub">EventLogRestService · polling до финального статуса</div>
+
+    <!-- → -->
+    <div class="conn">
+      <div class="arrow-wrap arr-fwd">
+        <div class="arrow-lbl">XML в ЕГИСЗ</div>
+        <div class="arrow-line"></div>
       </div>
     </div>
-  </div>
 
-  <div class="arrow">
-    <div class="arrow-line" style="min-height:8px;"></div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <!-- STEP: MedDocumentStatus decision -->
-  <div style="width:100%; max-width:860px;">
-    <div class="node node-decision" onclick="openModal('status')">
-      <div class="label">Статус документа в ЕГИСЗ</div>
-      <div class="title">MedDocumentStatus</div>
-      <div class="sub">WAITING (0,1) → retry · SUCCESS (4) → done · FAIL (2,3,5) → ошибка + NSI refresh</div>
+    <!-- ЕГИСЗ -->
+    <div class="svc egisz">
+      <div class="svc-head">
+        <div class="svc-icon">🏛️</div>
+        <div class="svc-name">ЕГИСЗ</div>
+        <span class="svc-tag">Федеральный реестр</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('egisz_recv')">
+          <span class="step-num">12</span>
+          <span class="step-icon">📥</span>
+          <span>Принимает медицинский документ</span>
+        </div>
+        <div class="step" onclick="open_modal('egisz_check')">
+          <span class="step-num">13</span>
+          <span class="step-icon">⚙️</span>
+          <span>Проверяет и регистрирует в государственном реестре</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="arrow success">
-    <div class="arrow-label">финальный статус → Kafka event-log.out</div>
-    <div class="arrow-line" style="min-height:14px;"></div>
-    <div class="arrow-head"></div>
-  </div>
+  </div><!-- /flow-row -->
 
-  <!-- STEP: EventLog response -->
-  <div style="width:100%; max-width:860px;">
-    <div class="node node-kafka" onclick="openModal('eventlogresponse')">
-      <div class="label">Kafka → event-log.out · optima-2-backend получает результат</div>
-      <div class="title">N3healthEventLogResponse</div>
-      <div class="sub">orderId · tenant · status · message · createdAt</div>
+
+  <!-- ════════════════════════════════════════════════
+       ФАЗА 2: СТАТУС
+  ════════════════════════════════════════════════ -->
+  <p class="phase-label">② Система узнаёт результат</p>
+  <div class="flow-row">
+
+    <!-- ВРАЧ -->
+    <div class="svc actor">
+      <div class="svc-head">
+        <div class="svc-icon">🧑‍⚕️</div>
+        <div class="svc-name">Врач в оптике</div>
+        <span class="svc-tag">Пользователь</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('doc_sees')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">🔔</span>
+          <span>Видит статус: <span class="badge badge-ok">Принято</span> или <span class="badge badge-err">Отклонено</span></span>
+        </div>
+      </div>
     </div>
-  </div>
 
-</div><!-- /diagram -->
+    <!-- ← -->
+    <div class="conn">
+      <div class="arrow-wrap arr-ret">
+        <div class="arrow-lbl">статус в UI</div>
+        <div class="arrow-line"></div>
+      </div>
+    </div>
 
-<!-- LEGEND -->
+    <!-- СЕРВЕР OPTIMA -->
+    <div class="svc backend">
+      <div class="svc-head">
+        <div class="svc-icon">🖥️</div>
+        <div class="svc-name">Сервер Optima</div>
+        <span class="svc-tag">optima-2-backend</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('status_update')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">📝</span>
+          <span>Получает финальный статус и обновляет карточку заказа</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ← -->
+    <div class="conn">
+      <div class="arrow-wrap arr-ret">
+        <div class="arrow-lbl">результат</div>
+        <div class="arrow-line"></div>
+      </div>
+    </div>
+
+    <!-- ОЧЕРЕДЬ (пустая, просто разделитель) -->
+    <div class="svc queue">
+      <div class="svc-head">
+        <div class="svc-icon">📬</div>
+        <div class="svc-name">Очередь сообщений</div>
+        <span class="svc-tag">Apache Kafka</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('kafka_back')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">↩️</span>
+          <span>Передаёт статус обратно на сервер Optima</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ← -->
+    <div class="conn">
+      <div class="arrow-wrap arr-ret">
+        <div class="arrow-lbl">статус</div>
+        <div class="arrow-line"></div>
+      </div>
+    </div>
+
+    <!-- СЕРВИС ЕГИСЗ -->
+    <div class="svc n3h">
+      <div class="svc-head">
+        <div class="svc-icon">🔗</div>
+        <div class="svc-name">Сервис интеграции</div>
+        <span class="svc-tag">n3health-backend</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('polling')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">🔍</span>
+          <span>Периодически спрашивает ЕГИСЗ: «Документ проверен?»</span>
+        </div>
+        <div class="step" onclick="open_modal('retry')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">⏳</span>
+          <span>Ждёт финального ответа, повторяет запросы автоматически</span>
+        </div>
+        <div class="step" onclick="open_modal('status_got')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">📊</span>
+          <span>Получает статус и отправляет его обратно через очередь</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ← (от ЕГИСЗ к сервису) -->
+    <div class="conn">
+      <div class="arrow-wrap arr-ret">
+        <div class="arrow-lbl">статус</div>
+        <div class="arrow-line"></div>
+      </div>
+    </div>
+
+    <!-- ЕГИСЗ -->
+    <div class="svc egisz">
+      <div class="svc-head">
+        <div class="svc-icon">🏛️</div>
+        <div class="svc-name">ЕГИСЗ</div>
+        <span class="svc-tag">Федеральный реестр</span>
+      </div>
+      <div class="svc-body">
+        <div class="step" onclick="open_modal('egisz_status')">
+          <span class="step-num">✓</span>
+          <span class="step-icon">📋</span>
+          <span>Отвечает: принят ли документ или есть ошибки</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /flow-row -->
+
+</div><!-- /scroll-wrapper -->
+
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#4338ca;"></div> HTTP endpoint</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Service / Logic</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Kafka topic</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div> Kafka consumer</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#fb923c;"></div> External REST</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div> Redis</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div> Condition / Decision</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6e40c9"></div> Пользователь</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1f6feb"></div> Интерфейс</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#388bfd"></div> Сервер Optima</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div> Очередь сообщений</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div> Сервис интеграции</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f0883e"></div> ЕГИСЗ</div>
 </div>
 
-
-<!-- ─── MODAL ─── -->
-<div class="overlay" id="overlay" onclick="closeModal(event)">
+<!-- ════════════ MODAL ════════════ -->
+<div class="overlay" id="overlay" onclick="overlay_click(event)">
   <div class="modal" id="modal">
-    <button class="modal-close" onclick="closeModal(null)">✕</button>
-    <div class="modal-icon" id="modal-icon"></div>
-    <div class="tag" id="modal-tag"></div>
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-file" id="modal-file"></div>
-    <div class="modal-body" id="modal-body"></div>
+    <button class="modal-close" onclick="close_modal()">✕</button>
+    <div class="modal-icon" id="m-icon"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="modal-body"  id="m-body"></div>
   </div>
 </div>
 
 <script>
-const data = {
-  http: {
-    icon: '🌐',
-    tag: 'HTTP',
-    tagClass: 'http',
-    title: 'POST /orders/{orderId}/n3health',
-    file: 'OrderController.java:205',
-    body: `
-      <p><strong>Почему это HTTP POST, а не, например, событие из другого сервиса?</strong><br>
-      Отправка мед документа — явное действие врача/пользователя. Он нажимает кнопку в интерфейсе, подписывает документ УКЭП (КЭП) и только тогда происходит отправка. Это не фоновый процесс — нужна явная инициация через REST.</p>
+const CONTENT = {
 
-      <p><strong>Почему orderId в пути, а подписанные данные (guid, idLpu) — в теле?</strong><br>
-      <code>orderId</code> — идентификатор ресурса (REST-конвенция: ресурс в пути). Данные подписи (<code>N3HealthSignRequest</code>) — переменные входные данные конкретного запроса, им место в body. Это позволяет валидировать тело через <code>@Valid</code> независимо от пути.</p>
+  exam: {
+    icon: '👁️',
+    title: 'Осмотр пациента',
+    body: `<p>Врач проводит проверку зрения и вносит результаты в программу Optima: остроту зрения, подбор линз, диагноз. Это обычная работа — пока никаких отправок не происходит.</p>
+           <p>После оформления осмотра врач видит кнопку «Отправить в ЕГИСЗ». Нажимать её нужно по закону — с 2019 года все медицинские организации обязаны передавать данные об осмотрах в государственную систему здравоохранения.</p>`
+  },
 
-      <p><strong>Разделение GET и POST на один path:</strong><br>
-      <code>GET /orders/{id}/n3health</code> — генерирует XML для предпросмотра/подписи. <code>POST</code> — отправляет уже подписанный документ. Такое разделение позволяет фронту сначала показать пользователю, что именно будет отправлено.</p>
-    `
+  btn: {
+    icon: '🖱️',
+    title: 'Нажатие кнопки «Отправить в ЕГИСЗ»',
+    body: `<p>Это явное действие врача — система не отправляет документы автоматически без его ведома. Врач сначала проверяет данные, а потом принимает решение об отправке.</p>
+           <p>До нажатия кнопки показывается предпросмотр документа — врач видит, что именно уйдёт в государственный реестр, и может всё перепроверить.</p>`
+  },
+
+  preview: {
+    icon: '📋',
+    title: 'Предпросмотр документа',
+    body: `<p>Программа показывает врачу, как будет выглядеть медицинский документ: данные пациента, результаты осмотра, реквизиты клиники и лицензия.</p>
+           <p>Это важно: ЕГИСЗ требует строго определённый формат документа (CDA — международный стандарт для медицинских записей). Если каких-то данных не хватает, программа предупредит об этом до отправки — чтобы врач мог всё исправить.</p>`
+  },
+
+  sign: {
+    icon: '✍️',
+    title: 'Подтверждение и отправка',
+    body: `<p>Врач подтверждает, что документ верный, и нажимает «Подтвердить». Программа отправляет данные на сервер вместе с идентификаторами врача и клиники — для того, чтобы сервер знал, от кого и от какого подразделения пришёл документ.</p>`
   },
 
   agreement: {
-    icon: '📋',
-    tag: 'Service',
-    tagClass: 'service',
-    title: 'Проверка согласия клиента',
-    file: 'N3HealthUploader.java:183 · ClientAgreementValidator',
-    body: `
-      <p><strong>Зачем проверять согласие перед каждой отправкой?</strong><br>
-      Передача медицинских данных в ЕГИСЗ без согласия пациента нарушает ФЗ-323 и ФЗ-152 о персональных данных. Согласие хранится в БД и может быть отозвано пациентом в любой момент — поэтому проверка нужна при каждом запросе, а не только при первом.</p>
-
-      <p><strong>Почему confirmatory вызывается здесь, а не в контроллере?</strong><br>
-      <code>ClientN3HealthAgreementConfirmatory</code> — это бизнес-логика, не валидация запроса. Контроллер отвечает только за HTTP-слой. Подтверждение согласия — часть бизнес-транзакции отправки документа, поэтому живёт в сервисном слое.</p>
-    `
+    icon: '📜',
+    title: 'Проверка согласия пациента',
+    body: `<p>Прежде чем передать медицинские данные в государственный реестр, сервер проверяет: <strong>подписал ли пациент согласие на передачу персональных данных</strong>.</p>
+           <p>Это требование закона — без согласия пациента отправка данных в ЕГИСЗ нарушает его права. Согласие можно отозвать в любой момент, поэтому проверка происходит при каждой отправке, а не только один раз.</p>
+           <p>Если согласие есть — система его автоматически подтверждает и продолжает. Если нет — отправка останавливается.</p>`
   },
 
-  redis: {
+  lock: {
     icon: '🔒',
-    tag: 'Redis',
-    tagClass: 'redis',
-    title: 'Redis Distributed Lock',
-    file: 'N3HealthRedisLock.java · tryLock(orderId, clientId)',
-    body: `
-      <p><strong>Зачем нужен Redis Lock?</strong><br>
-      ЕГИСЗ не идемпотентен — двойная отправка одного документа может привести к созданию дублирующей записи в федеральной системе. Redis Lock гарантирует, что один и тот же заказ не обрабатывается параллельно двумя запросами (например, при двойном клике пользователя или network retry).</p>
-
-      <p><strong>Почему ключ = <code>(orderId, clientId)</code>, а не только orderId?</strong><br>
-      Дополнительная проверка на clientId даёт защиту на уровне пациента. Если по каким-то причинам один клиент попытается отправить документы по разным заказам одновременно — это тоже может создать проблемы в МПИ (реестр пациентов).</p>
-
-      <p><strong>Почему именно Redis, а не synchronized или DB lock?</strong><br>
-      Сервис горизонтально масштабируется — на нескольких подах JVM-уровень синхронизации не работает. Redis — общий распределённый state для всех инстансов. DB lock (SELECT FOR UPDATE) создал бы транзакцию на весь HTTP-запрос, включая медленные вызовы к N3Health.</p>
-    `
+    title: 'Защита от двойной отправки',
+    body: `<p>Представьте: врач дважды нажал кнопку, или соединение прервалось и программа автоматически повторила запрос. Без защиты в ЕГИСЗ попало бы два одинаковых документа — это серьёзная ошибка в федеральном реестре.</p>
+           <p><strong>Что делает система:</strong> когда начинается отправка, сервер ставит «пометку» на этот заказ. Если придёт второй запрос на ту же отправку — система его отклонит и вернёт сообщение «уже отправляется».</p>
+           <p>Пометка хранится в быстрой базе данных (Redis) и автоматически снимается после завершения отправки.</p>`
   },
 
-  decision: {
-    icon: '🔀',
-    tag: 'Arch',
-    tagClass: 'arch',
-    title: 'Проверка статуса: первичная или повторная отправка?',
-    file: 'N3HealthUploader.java:190 · order.getMedDocumentStatus() == null',
-    body: `
-      <p><strong>Почему важно различать первую и повторную отправку?</strong><br>
-      При <strong>первой отправке</strong> пациент ещё не существует в МПИ (Мастер Индекс Пациентов ЕГИСЗ) — нужно сначала зарегистрировать его через <code>AddPatient</code>. При <strong>повторной</strong> — пациент уже зарегистрирован, пересылать его нельзя (вызовет конфликт). N3Health вернёт ошибку <code>Duplicate create patient request</code>.</p>
-
-      <p><strong>Почему используется <code>medDocumentStatus == null</code> как признак?</strong><br>
-      Поле <code>medDocumentStatus</code> проставляется только после первой успешной отправки. <code>null</code> — это надёжный индикатор "ещё ни разу не отправляли". Использование отдельного boolean-флага было бы избыточным.</p>
-
-      <p><strong>Что происходит с комментарием к заказу?</strong><br>
-      Используются разные темы комментариев: <code>MED_RECORD_XML_SENT_TO_EGISZ</code> vs <code>MED_RECORD_XML_RECENT_TO_EGISZ</code> — чтобы в истории заказа было видно, была ли это первичная или уточняющая отправка.</p>
-    `
-  },
-
-  addpatient: {
+  firsttime: {
     icon: '👤',
-    tag: 'Kafka',
-    tagClass: 'kafka',
-    title: 'N3healthPatientUpdated → Kafka optimaIn',
-    file: 'N3HealthUploader.java:208 · sendAddPatientXmlToKafka()',
-    body: `
-      <p><strong>Почему регистрация пациента идёт через Kafka, а не напрямую в N3Health?</strong><br>
-      Асинхронная архитектура: HTTP-запрос не должен блокироваться на медленных внешних вызовах. N3Health может отвечать медленно или быть временно недоступен. Kafka даёт надёжную доставку с retry без блокировки потока пользователя.</p>
-
-      <p><strong>Почему AddPatient отправляется <em>до</em> AddMedRecord?</strong><br>
-      N3Health требует сначала зарегистрировать пациента в МПИ — только потом принимает медицинские записи для него. Порядок сообщений в топике <code>optimaIn</code> гарантирован партицией (ключ = tenant), поэтому PatientUpdated всегда будет обработан раньше AddMedRecord для одного тенанта.</p>
-    `
+    title: 'Первичная регистрация пациента',
+    body: `<p>ЕГИСЗ устроен так: прежде чем принять медицинский документ о пациенте, он должен знать, что этот пациент вообще существует в системе.</p>
+           <p>При <strong>первой отправке</strong> документа для конкретного пациента система сначала отправляет его данные (ФИО, СНИЛС, паспорт) в Мастер-индекс пациентов — федеральный справочник всех пациентов страны. И только после этого отправляет сам медицинский документ.</p>
+           <p>При всех следующих отправках этот шаг пропускается — пациент уже зарегистрирован.</p>`
   },
 
-  addmedrecord: {
+  xml: {
     icon: '📄',
-    tag: 'Kafka',
-    tagClass: 'kafka',
-    title: 'N3healthAddMedRecord → Kafka optimaIn',
-    file: 'N3HealthUploader.java:197 · kafkaProducer.sendToOptimaIn()',
-    body: `
-      <p><strong>Почему используется Avro-схема, а не JSON?</strong><br>
-      Avro + Schema Registry даёт строгую типизацию контракта между producer и consumer. При изменении структуры сообщения Schema Registry не позволит несовместимое изменение — это защита от runtime-ошибок при раскатке. JSON потребовал бы ручной поддержки обратной совместимости.</p>
-
-      <p><strong>Почему ключ партиционирования = <code>tenant</code>?</strong><br>
-      Все сообщения одного тенанта гарантированно попадают в одну партицию → строгий порядок обработки внутри тенанта. Это критично: <code>AddPatient</code> должен быть обработан раньше <code>AddMedRecord</code> для одного клиента.</p>
-
-      <p><strong>Почему XML упакован в Avro, а не отправляется как есть?</strong><br>
-      XML-строка внутри Avro-конверта позволяет передавать метаданные (<code>tenant</code>, <code>createdAt</code>) вместе с payload, не парся сам XML. Consumer может маршрутизировать по tenant, не трогая XML.</p>
-    `
+    title: 'Формирование медицинского документа',
+    body: `<p>ЕГИСЗ не принимает документы в произвольном виде. Сервер формирует документ строго по международному стандарту <strong>CDA (Clinical Document Architecture)</strong> — это требование Минздрава РФ для всех медицинских систем.</p>
+           <p>Документ содержит: данные пациента, данные врача и клиники (включая лицензию), результаты осмотра, дату и подпись. Всё упаковывается в формат XML — структурированный текстовый файл.</p>
+           <p>Для формирования нужны данные из нескольких источников: карточка пациента, данные клиники, справочники Минздрава (коды регионов, специальностей). Если чего-то не хватает — документ не сформируется, и врач получит понятное сообщение об ошибке.</p>`
   },
 
-  handler: {
-    icon: '⚙️',
-    tag: 'Service',
-    tagClass: 'service',
-    title: 'N3HealthAddMedRecordHandler — Kafka Consumer',
-    file: 'N3HealthAddMedRecordHandler.java:33',
-    body: `
-      <p><strong>Почему consumer живёт в том же optima-2-backend, а не в отдельном сервисе?</strong><br>
-      Отправка в N3Health требует доступа к БД заказов (для обновления статуса и создания комментариев). Вынос в отдельный сервис потребовал бы либо дублирования доступа к БД, либо дополнительного inter-service вызова. Для данного объёма это избыточно.</p>
-
-      <p><strong>Почему orderId и idLpu извлекаются из XML-строки, а не из Avro?</strong><br>
-      <code>XmlUtil.extractValueFromXmlTag()</code> читает теги прямо из XML. Эти данные уже есть в самом XML для N3Health — дублировать их в Avro-структуре означало бы держать два источника правды. XML — первичный контракт с N3Health.</p>
-
-      <p><strong>Зачем проверка <code>tenantConfigStore.hasTenant(tenant)</code>?</strong><br>
-      Мультитенантная система: сообщение могло быть отправлено одним тенантом, а обработано инстансом, который его не обслуживает. Проверка предотвращает обработку чужих данных в неподходящем контексте.</p>
-    `
+  toqueue: {
+    icon: '📤',
+    title: 'Документ кладётся в очередь',
+    body: `<p>Вместо того чтобы сразу отправить документ в ЕГИСЗ, сервер <strong>помещает его в очередь сообщений</strong>. Это ключевое архитектурное решение.</p>
+           <p><strong>Зачем:</strong> ЕГИСЗ — государственная система, которая может быть медленной или временно недоступной. Если отправлять напрямую, врач будет ждать ответа несколько секунд или минут, а при ошибке документ может потеряться.</p>
+           <p>С очередью: документ надёжно сохранён, сервер отвечает врачу мгновенно («принято в обработку»), а реальная отправка в ЕГИСЗ происходит в фоне. Даже если ЕГИСЗ сейчас недоступен — очередь повторит попытку автоматически.</p>`
   },
 
-  n3rest: {
-    icon: '🏥',
-    tag: 'Service',
-    tagClass: 'service',
-    title: 'N3Health REST API — отправка XML',
-    file: 'N3HealthUploader.java:219 · sendAddMedRecordXmlToN3health()',
-    body: `
-      <p><strong>Почему отправляется XML (CDA), а не JSON?</strong><br>
-      ЕГИСЗ требует формат CDA R2 (Clinical Document Architecture) — это стандарт HL7, обязательный для медицинских систем в РФ согласно приказам Минздрава. Нет альтернативы — это требование федерального регулятора.</p>
-
-      <p><strong>Почему заголовок <code>text/xml;charset=UTF-8</code>, а не <code>application/xml</code>?</strong><br>
-      N3Health API ожидает именно <code>text/xml</code> — это требование документации интеграционного шлюза ЕГИСЗ. <code>application/xml</code> вызовет ошибку парсинга на стороне сервиса.</p>
-
-      <p><strong>Почему дублирующий пациент логируется как WARN, а не ERROR?</strong><br>
-      Ситуация "пациент уже существует" — не ошибка архитектуры, а race condition между двумя запросами. Redis Lock должен это предотвращать, но если дубль всё же прошёл — это информация для мониторинга, не критичная авария.</p>
-    `
+  kafka: {
+    icon: '💾',
+    title: 'Очередь сообщений — надёжное хранение',
+    body: `<p><strong>Очередь сообщений (Apache Kafka)</strong> — это специальная система, которая работает как надёжный «почтовый ящик» между разными частями приложения.</p>
+           <p>Документ, попавший в очередь, не потеряется — даже если сервер перезапустится или ЕГИСЗ будет недоступен несколько часов. Очередь хранит его до тех пор, пока он не будет успешно доставлен.</p>
+           <p>Ещё важно: очередь гарантирует <strong>порядок</strong> — документы одной клиники обрабатываются строго по очереди. Это нужно, чтобы «зарегистрировать пациента» точно было обработано раньше «добавить медицинскую запись».</p>`
   },
 
-  eventlogrequest: {
-    icon: '📨',
-    tag: 'Kafka',
-    tagClass: 'kafka',
-    title: 'N3healthEventLogRequest → event-log.in',
-    file: 'N3HealthUploader.java:228 · N3HealthEventLogRequestProducer.send()',
-    body: `
-      <p><strong>Зачем отдельный топик event-log.in, если уже есть optimaIn?</strong><br>
-      <code>event-log.in</code> — это очередь запросов на опрос статуса, а не сами документы. n3health-backend обрабатывает их в своём темпе с rate limiting и backoff. Смешивание с <code>optimaIn</code> создало бы конкуренцию разных типов сообщений.</p>
-
-      <p><strong>Почему запрос статуса идёт через Kafka, а не синхронно после отправки XML?</strong><br>
-      ЕГИСЗ не даёт статус синхронно — документ проходит асинхронную валидацию (от минут до часов). Kafka позволяет опрашивать статус с нужным интервалом и retry без блокировки HTTP-потока пользователя.</p>
-
-      <p><strong>Отправка только при HTTP 200 от N3Health — почему?</strong><br>
-      Если XML не принят N3Health — нет смысла спрашивать статус. Добавляется комментарий об ошибке к заказу, и flow завершается. Запрос статуса имеет смысл только когда документ успешно передан в шлюз.</p>
-    `
-  },
-
-  eventlogservice: {
+  kafka2: {
     icon: '🔄',
-    tag: 'Arch',
-    tagClass: 'arch',
-    title: 'EventLogService — Retry + CircuitBreaker + RateLimit',
-    file: 'EventLogService.java:97 · n3health-backend',
-    body: `
-      <p><strong>Почему используются и @Retryable и @CircuitBreaker одновременно?</strong><br>
-      <code>@Retryable</code> — повторяет запрос при временных сбоях (сеть, rate limit). <code>@CircuitBreaker</code> — при достижении максимума попыток размыкает цепь, чтобы не продолжать долбиться в недоступный сервис. Вместе они дают устойчивость без перегрузки N3Health.</p>
-
-      <p><strong>Зачем rate limiting через Redis bucket4j?</strong><br>
-      N3Health и ЕГИСЗ имеют лимиты на количество запросов. Bucket4j реализует алгоритм Token Bucket: разрешает <code>requestLimit</code> запросов в 60 секунд. Без этого при большом потоке документов можно получить бан от регулятора.</p>
-
-      <p><strong>Почему при FAIL триггерится обновление NSI?</strong><br>
-      Ошибки 2, 3, 5 в ЕГИСЗ часто вызваны устаревшими справочными данными НСИ (коды регионов, специальностей и т.д.). Автоматический <code>nsiService.validateNsi()</code> при ошибке — попытка исправить данные для следующих документов.</p>
-    `
+    title: 'Сервер забирает документ и отправляет в ЕГИСЗ',
+    body: `<p>Сервер Optima «подписан» на очередь — он автоматически забирает документы по мере их появления и отправляет напрямую в API ЕГИСЗ через N3Health.</p>
+           <p>Если ЕГИСЗ вернул ошибку — документ остаётся в очереди и будет отправлен повторно. Если отправка успешна — сервер записывает к заказу комментарий «отправлено в ЕГИСЗ» и инициирует проверку статуса.</p>`
   },
 
-  egisz: {
-    icon: '🏛️',
-    tag: 'Service',
-    tagClass: 'service',
-    title: 'Опрос статуса документа в ЕГИСЗ',
-    file: 'EventLogRestService.java · getDocumentStatus(orderId, idLpu)',
-    body: `
-      <p><strong>Почему polling (опрос), а не webhook от ЕГИСЗ?</strong><br>
-      ЕГИСЗ не поддерживает callbacks/webhooks — это legacy-система с REST API только для чтения статуса. Polling — единственный доступный механизм.</p>
-
-      <p><strong>Почему опрос идёт через n3health-backend, а не через optima-2-backend напрямую?</strong><br>
-      n3health-backend — выделенный интеграционный микросервис для ЕГИСЗ. Он инкапсулирует всю специфику: авторизацию, rate limiting, retry-логику, мониторинг. Optima не должен знать детали протокола ЕГИСЗ.</p>
-
-      <p><strong>Что происходит при ошибке 400/409?</strong><br>
-      Эти коды означают клиентскую ошибку (неверные данные, конфликт). Retry не поможет. Сообщение отправляется в dead letter topic, в Slack летит алерт, а в <code>event-log.out</code> идёт ответ со статусом <code>BAD_REQUEST</code> — для отображения в UI.</p>
-    `
+  egisz_recv: {
+    icon: '📥',
+    title: 'ЕГИСЗ принимает документ',
+    body: `<p><strong>ЕГИСЗ (Единая государственная информационная система в сфере здравоохранения)</strong> — федеральная система Минздрава, куда стекаются медицинские данные со всей страны.</p>
+           <p>Когда ЕГИСЗ принимает документ, это ещё не значит, что он одобрен. Документ встаёт в очередь на проверку: сначала автоматическая валидация (правильно ли заполнены поля, есть ли все обязательные данные), потом регистрация в реестре.</p>`
   },
 
-  status: {
+  egisz_check: {
+    icon: '⚙️',
+    title: 'Проверка в ЕГИСЗ',
+    body: `<p>ЕГИСЗ проверяет документ по нескольким критериям: правильность формата CDA, наличие обязательных полей, корректность СНИЛС пациента и врача, актуальность лицензии клиники.</p>
+           <p>Возможные результаты:<br>
+           <strong>✅ Принято (код 4)</strong> — документ зарегистрирован в реестре<br>
+           <strong>⏳ В обработке (коды 0, 1)</strong> — ещё проверяется, нужно подождать<br>
+           <strong>❌ Ошибка (коды 2, 3, 5)</strong> — документ отклонён, нужно исправить данные</p>
+           <p>Проверка может занять от нескольких минут до нескольких часов — ЕГИСЗ не даёт моментального ответа.</p>`
+  },
+
+  polling: {
+    icon: '🔍',
+    title: 'Периодический опрос статуса',
+    body: `<p>ЕГИСЗ не присылает уведомления о результате — наша система сама периодически спрашивает: <em>«Ну как там, проверили?»</em></p>
+           <p>Этим занимается отдельный маленький сервис (<strong>n3health-backend</strong>), созданный специально для работы с ЕГИСЗ. Он хранит очередь запросов на проверку и опрашивает ЕГИСЗ с умными паузами — чтобы не перегружать государственную систему и не получить блокировку за слишком частые запросы.</p>`
+  },
+
+  retry: {
+    icon: '⏳',
+    title: 'Автоматические повторы',
+    body: `<p>Пока ЕГИСЗ отвечает «ещё в обработке» — сервис терпеливо ждёт и повторяет запрос. Паузы между попытками автоматически увеличиваются: сначала 30 секунд, потом минута, потом две — чтобы не перегружать ЕГИСЗ.</p>
+           <p>Если ЕГИСЗ временно недоступен — сервис тоже не сдаётся: у него есть «автоматический предохранитель» (circuit breaker), который при серии неудач временно останавливает запросы, а через время пробует снова.</p>
+           <p>Если что-то пошло совсем не так — команда получает уведомление в Slack.</p>`
+  },
+
+  status_got: {
     icon: '📊',
-    tag: 'Arch',
-    tagClass: 'arch',
-    title: 'MedDocumentStatus — статусная машина ЕГИСЗ',
-    file: 'MedDocumentStatus.java · n3health-backend',
-    body: `
-      <p><strong>Почему статусы сгруппированы в enum, а не проверяются числа напрямую?</strong><br>
-      ЕГИСЗ может добавить новые коды статусов. Enum с методом <code>fromCode()</code> централизует маппинг: при добавлении нового кода меняется только одно место. Числовые константы разбросанные по коду — антипаттерн (Magic Numbers).</p>
-
-      <p><strong>Почему WAITING не является ошибкой и не пишется в response?</strong><br>
-      Коды 0 и 1 — промежуточные состояния ("документ в обработке"). Отправлять ответ рано — статус изменится. Вместо этого запускается retry через backoff. Финальный ответ отправляется только при SUCCESS или FAIL.</p>
-
-      <p><strong>Почему у BAD_REQUEST пустой массив кодов <code>{}</code>?</strong><br>
-      <code>BAD_REQUEST</code> не возвращается ЕГИСЗ — это внутренний статус системы, устанавливаемый когда сам запрос к ЕГИСЗ завершился 4xx ошибкой. Он не маппится из кода ЕГИСЗ, поэтому коды = пустой массив.</p>
-    `
+    title: 'Получен финальный статус',
+    body: `<p>Как только ЕГИСЗ вернул финальный ответ («принято» или «отклонено»), сервис интеграции упаковывает его и отправляет обратно через очередь сообщений на сервер Optima.</p>
+           <p>При отклонении документа система также автоматически обновляет свои справочные данные (коды регионов, специальностей Минздрава) — потому что часто причина отклонения в том, что какой-то код устарел.</p>`
   },
 
-  eventlogresponse: {
-    icon: '✅',
-    tag: 'Kafka',
-    tagClass: 'kafka',
-    title: 'N3healthEventLogResponse → event-log.out',
-    file: 'KafkaProducerService.java:52 · sendToOutEventLog() · n3health-backend',
-    body: `
-      <p><strong>Почему ответ идёт обратно в Kafka, а не по REST в optima?</strong><br>
-      Асинхронный паттерн request-response через Kafka: optima-2-backend подписывается на <code>event-log.out</code> и обрабатывает ответ когда угодно. Это развязывает два сервиса: n3health-backend не знает, где живёт optima, не нужен service discovery для callback.</p>
+  kafka_back: {
+    icon: '↩️',
+    title: 'Очередь передаёт статус обратно',
+    body: `<p>Статус документа возвращается тем же путём — через очередь сообщений. Это сделано намеренно: сервис интеграции с ЕГИСЗ не знает, где живёт сервер Optima, и не обращается к нему напрямую.</p>
+           <p>Такая архитектура позволяет каждому сервису работать независимо — если один из них перезапускается, другие продолжают работать, а сообщения не теряются.</p>`
+  },
 
-      <p><strong>Что optima-2-backend делает с этим ответом?</strong><br>
-      <code>N3HealthEventLogResponseHandler</code> читает топик и обновляет <code>medDocumentStatus</code> заказа + создаёт комментарий с итоговым статусом. Пользователь видит результат в UI заказа.</p>
+  status_update: {
+    icon: '📝',
+    title: 'Обновление статуса заказа',
+    body: `<p>Сервер Optima получает статус из очереди и обновляет карточку заказа: записывает результат («принято в ЕГИСЗ» или «отклонено с причиной»), добавляет комментарий с датой и деталями.</p>
+           <p>После этого врач, открыв заказ в программе, сразу видит актуальный статус. Если документ был отклонён — система показывает причину, чтобы врач мог исправить данные и отправить повторно.</p>`
+  },
 
-      <p><strong>Почему ключ партиционирования = tenant?</strong><br>
-      Те же причины, что и в <code>optimaIn</code>: гарантия порядка в рамках тенанта. Response должен прийти после того, как сохранился request — один тенант, одна партиция, строгий порядок.</p>
-    `
+  doc_sees: {
+    icon: '🔔',
+    title: 'Врач видит результат',
+    body: `<p>В карточке заказа появляется статус: <strong style="color:#3fb950">«Принято в ЕГИСЗ»</strong> или <strong style="color:#f85149">«Отклонено: [причина]»</strong>.</p>
+           <p>Если принято — всё хорошо, обязанность выполнена. Если отклонено — врач видит причину (например: «неверно указан СНИЛС» или «истекла лицензия клиники») и может исправить данные и отправить повторно.</p>
+           <p>Весь процесс — от нажатия кнопки до получения статуса — обычно занимает от нескольких минут до нескольких часов в зависимости от загруженности ЕГИСЗ.</p>`
   }
+
 };
 
-function openModal(key) {
-  const d = data[key];
+function open_modal(key) {
+  const d = CONTENT[key];
   if (!d) return;
-  document.getElementById('modal-icon').textContent = d.icon;
-  document.getElementById('modal-tag').textContent = d.tag;
-  document.getElementById('modal-tag').className = 'tag ' + d.tagClass;
-  document.getElementById('modal-title').textContent = d.title;
-  document.getElementById('modal-file').textContent = d.file;
-  document.getElementById('modal-body').innerHTML = d.body;
-  document.getElementById('overlay').classList.add('active');
+  document.getElementById('m-icon').textContent  = d.icon;
+  document.getElementById('m-title').textContent = d.title;
+  document.getElementById('m-body').innerHTML    = d.body;
+  document.getElementById('overlay').classList.add('open');
 }
 
-function closeModal(event) {
-  if (event && event.target !== document.getElementById('overlay')) return;
-  document.getElementById('overlay').classList.remove('active');
+function close_modal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function overlay_click(e) {
+  if (e.target === document.getElementById('overlay')) close_modal();
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('overlay').classList.remove('active');
+  if (e.key === 'Escape') close_modal();
 });
 </script>
 </body>
