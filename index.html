@@ -171,6 +171,14 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   <path class="arrow-path" d="M950,270 C990,240 990,200 950,190 C930,186 910,196 898,210" stroke="#ca8a04" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mY)"/>
   <text x="996" y="224" text-anchor="start" font-size="9.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">повтор</text>
 </g>
+<g data-id="n-retry-processing" class="el" style="--glow:rgba(202,138,4,.9)">
+  <g class="node-g" transform="translate(930,162)">
+    <rect class="node-rect" width="140" height="44" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.2"/>
+    <text x="70" y="13" text-anchor="middle" font-size="8" fill="#713f12" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">⏳ Отправлено в ЕГИСЗ</text>
+    <text x="70" y="26" text-anchor="middle" font-size="7.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif">обработка идёт → повторяем</text>
+    <text x="70" y="39" text-anchor="middle" font-size="7" fill="#a16207" font-family="'Segoe UI',system-ui,sans-serif">другие заказы идут штатно</text>
+  </g>
+</g>
 <g data-id="n-retry-rest" class="el" style="--glow:rgba(202,138,4,.9)">
   <g class="node-g" transform="translate(948,172)">
     <rect class="node-rect" width="106" height="32" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.2"/>
@@ -384,7 +392,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <script>
 const ALL_EL = [
   'n-actor','n-optima','n-kafka','n-n3health','n-n3h-listener','n-listener-stop','n-scheduler','n-postgres',
-  'n-pix','n-emk','n-eventlog','n-egisz','n-slack','n-ops','n-dlt','n-retry-rest','n-kafka-wait',
+  'n-pix','n-emk','n-eventlog','n-egisz','n-slack','n-ops','n-dlt','n-retry-rest','n-retry-processing','n-kafka-wait',
   'n-redis-lock','n-redis-nsi','n-redis-rate','n-nsi','n-redis-section','n-n3h-box',
   'a-fe-opt','a-opt-pg','a-opt-lock','a-opt-lock-release','a-opt-nsi','a-opt-kafka','a-kafka-async',
   'a-opt-pix','a-opt-emk','a-pix-egisz','a-emk-egisz',
@@ -452,8 +460,9 @@ const SCENARIOS = {
       {el:['n-optima','a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.'},
       {el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу, лимит не превышен.'},
       {el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'EventLog: документ ещё обрабатывается. Статус не готов.'},
-      {el:['n-n3health','a-n3h-retry'], text:'⏳ @Retryable: ждём и повторяем запрос с нарастающей задержкой (backoff).'},
-      {el:['n-n3health','a-n3h-evlog','n-eventlog'], text:'Повторный запрос... всё ещё не готово.'},
+      {el:['n-n3health','a-n3h-retry','n-retry-processing'], text:'⏳ Отправлено в ЕГИСЗ, обработка ещё идёт. @Retryable откладывает этот заказ в retry-топик с нарастающей задержкой.'},
+      {el:['n-kafka','a-kafka-n3h','n-n3health','a-n3h-evlog','n-eventlog'], text:'Пока этот заказ ждёт — n3health берёт следующее сообщение из основного топика и обрабатывает его штатно. Очередь не стоит.'},
+      {el:['n-n3health','a-n3h-evlog','n-eventlog'], text:'Повторный запрос по отложенному заказу... всё ещё не готово.'},
       {el:['n-n3health','a-n3h-rate','n-redis-rate'], text:'Лимит запросов снова проверяется перед каждой попыткой.'},
       {el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Очередная попытка... EventLog возвращает SUCCESS ✅'},
       {el:['n-n3health','a-n3h-kafka-out','a-kafka-result','n-optima'], text:'Результат SUCCESS доставлен обратно в систему учёта.'},
