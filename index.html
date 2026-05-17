@@ -20,9 +20,11 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 .sc-btn[data-id=retry].active{background:#78350f;border-color:#f59e0b}
 .sc-btn[data-id=network].active{background:#7f1d1d;border-color:#ef4444}
 .sc-btn[data-id=badreq].active{background:#4c1d95;border-color:#8b5cf6}
+.sc-btn[data-id=client4xx].active{background:#9a3412;border-color:#f97316}
 
 /* ── diagram wrapper ── */
-.diagram-wrap{background:#ffffff;border-radius:14px;padding:28px 24px 20px;width:100%;max-width:1400px;overflow-x:auto}
+.diagram-wrap{background:#ffffff;border-radius:14px;padding:28px 24px 28px;width:100%;max-width:1480px;overflow-x:auto}
+.diagram-wrap svg{min-width:1420px;height:auto}
 
 /* ── SVG element states ── */
 .el{transition:opacity .35s,filter .35s}
@@ -57,6 +59,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 /* hint */
 .hint{text-align:center;color:#475569;font-size:.82rem;margin-top:8px}
+#diagram .flow-note{paint-order:stroke;stroke:rgba(255,255,255,.96);stroke-width:3px;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -70,31 +73,32 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   <button class="sc-btn" data-id="retry">⏳ ЕГИСЗ ещё обрабатывает</button>
   <button class="sc-btn" data-id="network">🚨 Сетевая ошибка EventLog</button>
   <button class="sc-btn" data-id="badreq">🚫 ЕГИСЗ вернул ошибку 400/409</button>
+  <button class="sc-btn" data-id="client4xx">🛑 EventLog вернул другой 4xx</button>
 </div>
 
 <div class="diagram-wrap">
-<svg id="diagram" viewBox="0 0 1420 560" width="1372" height="541" xmlns="http://www.w3.org/2000/svg">
+<svg id="diagram" viewBox="0 0 1420 620" width="1372" height="600" xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <marker id="mA"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#64748b"/></marker>
-  <marker id="mB"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#2563eb"/></marker>
-  <marker id="mG"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#16a34a"/></marker>
-  <marker id="mO"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#b45309"/></marker>
-  <marker id="mR"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#dc2626"/></marker>
-  <marker id="mV"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#7c3aed"/></marker>
-  <marker id="mY"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#ca8a04"/></marker>
-  <marker id="mP"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#336791"/></marker>
+  <marker id="mA"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#64748b"/></marker>
+  <marker id="mB"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#2563eb"/></marker>
+  <marker id="mG"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#16a34a"/></marker>
+  <marker id="mO"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#b45309"/></marker>
+  <marker id="mR"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#dc2626"/></marker>
+  <marker id="mV"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#7c3aed"/></marker>
+  <marker id="mY"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#ca8a04"/></marker>
+  <marker id="mP"  markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8Z" fill="#336791"/></marker>
 </defs>
 
 <!-- ═══ N3.Health box ═══ -->
 <rect x="982" y="54" width="356" height="336" rx="11" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="6,3"/>
-<text x="1160" y="74" text-anchor="middle" font-size="11" font-weight="600" fill="#1d4ed8" font-family="'Segoe UI',system-ui,sans-serif">Сервисы N3.Health (ЕГИСЗ)</text>
+<text x="1160" y="74" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1d4ed8" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">Внешний контур N3.Health / ЕГИСЗ</text>
 
 <!-- ═══ ARROWS ═══ -->
 
 <!-- actor → optima -->
 <g id="a-fe-opt" class="el" style="--glow:rgba(37,99,235,.9)">
   <path class="arrow-path" d="M316,278 L388,278" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#mB)"/>
-  <text x="352" y="268" text-anchor="middle" font-size="8.5" fill="#2563eb" font-family="'Segoe UI',system-ui,sans-serif">XML документ</text>
+  <text x="352" y="268" text-anchor="middle" font-size="9.5" fill="#2563eb" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">XML документ</text>
 </g>
 
 <!-- optima → redis-lock -->
@@ -109,26 +113,26 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <!-- optima → kafka -->
 <g id="a-opt-kafka" class="el" style="--glow:rgba(180,83,9,.9)">
-  <path class="arrow-path" d="M566,272 L632,272" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#mO)"/>
-  <text x="599" y="262" text-anchor="middle" font-size="8.5" fill="#b45309" font-family="'Segoe UI',system-ui,sans-serif">задача в очередь</text>
+  <path class="arrow-path" d="M566,272 L652,272" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#mO)"/>
+  <text x="599" y="262" text-anchor="middle" font-size="9.5" fill="#b45309" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">задача в очередь</text>
 </g>
 
 <!-- kafka → optima async -->
 <g id="a-kafka-async" class="el" style="--glow:rgba(180,83,9,.9)">
-  <path class="arrow-path" d="M634,282 C612,316 590,316 568,286" stroke="#b45309" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mO)"/>
-  <text x="600" y="328" text-anchor="middle" font-size="8" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif">async выполнение</text>
+  <path class="arrow-path" d="M654,282 C626,320 596,320 568,286" stroke="#b45309" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mO)"/>
+  <text x="600" y="328" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">async выполнение</text>
 </g>
 
 <!-- optima → pix (first time) -->
 <g id="a-opt-pix" class="el" style="--glow:rgba(37,99,235,.9)">
   <path class="arrow-path" d="M566,255 C680,148 820,120 982,120" stroke="#2563eb" stroke-width="1.8" fill="none" marker-end="url(#mB)"/>
-  <text x="760" y="156" text-anchor="middle" font-size="8.5" fill="#1d4ed8" font-family="'Segoe UI',system-ui,sans-serif">① первый раз: данные пациента</text>
+  <text x="760" y="156" text-anchor="middle" font-size="9.5" fill="#1d4ed8" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">① первый раз: данные пациента</text>
 </g>
 
 <!-- optima → emk -->
 <g id="a-opt-emk" class="el" style="--glow:rgba(5,150,105,.9)">
   <path class="arrow-path" d="M566,270 C680,222 820,218 982,224" stroke="#059669" stroke-width="2" fill="none" marker-end="url(#mG)"/>
-  <text x="760" y="234" text-anchor="middle" font-size="8.5" fill="#047857" font-family="'Segoe UI',system-ui,sans-serif">② медицинский документ XML</text>
+  <text x="760" y="234" text-anchor="middle" font-size="9.5" fill="#047857" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">② медицинский документ XML</text>
 </g>
 
 <!-- pix → egisz -->
@@ -143,26 +147,26 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <!-- optima sends event-log request via kafka → n3health -->
 <g id="a-kafka-n3h" class="el" style="--glow:rgba(100,116,139,.9)">
-  <path class="arrow-path" d="M752,268 L787,268" stroke="#64748b" stroke-width="1.8" fill="none" marker-end="url(#mA)"/>
-  <text x="770" y="258" text-anchor="middle" font-size="8" fill="#475569" font-family="'Segoe UI',system-ui,sans-serif">запрос статуса</text>
+  <path class="arrow-path" d="M772,268 L807,268" stroke="#64748b" stroke-width="1.8" fill="none" marker-end="url(#mA)"/>
+  <text x="770" y="258" text-anchor="middle" font-size="9" fill="#475569" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">запрос статуса</text>
 </g>
 
 <!-- n3health → kafka result -->
 <g id="a-n3h-kafka-out" class="el" style="--glow:rgba(22,163,74,.9)">
-  <path class="arrow-path" d="M788,282 C766,310 762,310 752,282" stroke="#16a34a" stroke-width="1.6" fill="none" marker-end="url(#mG)"/>
-  <text x="785" y="322" text-anchor="middle" font-size="8" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif">результат</text>
+  <path class="arrow-path" d="M808,282 C784,312 780,312 772,282" stroke="#16a34a" stroke-width="1.6" fill="none" marker-end="url(#mG)"/>
+  <text x="785" y="322" text-anchor="middle" font-size="9" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">результат</text>
 </g>
 
 <!-- kafka → optima result (top) -->
 <g id="a-kafka-result" class="el" style="--glow:rgba(22,163,74,.9)">
-  <path class="arrow-path" d="M634,260 C612,226 588,226 566,248" stroke="#16a34a" stroke-width="1.6" fill="none" marker-end="url(#mG)"/>
-  <text x="600" y="223" text-anchor="middle" font-size="8" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif">финальный статус</text>
+  <path class="arrow-path" d="M654,260 C626,222 596,222 566,248" stroke="#16a34a" stroke-width="1.6" fill="none" marker-end="url(#mG)"/>
+  <text x="600" y="223" text-anchor="middle" font-size="9" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">финальный статус</text>
 </g>
 
 <!-- optima → frontend result -->
 <g id="a-opt-fe-result" class="el" style="--glow:rgba(22,163,74,.9)">
   <path class="arrow-path" d="M390,286 C362,364 254,364 254,308" stroke="#16a34a" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mG)"/>
-  <text x="312" y="380" text-anchor="middle" font-size="8.5" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif">статус заказа обновлён</text>
+  <text x="312" y="380" text-anchor="middle" font-size="9.5" fill="#15803d" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">статус заказа обновлён</text>
 </g>
 
 <!-- n3health → redis-rate -->
@@ -173,7 +177,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <!-- n3health → eventlog -->
 <g id="a-n3h-evlog" class="el" style="--glow:rgba(59,130,246,.9)">
   <path class="arrow-path" d="M950,278 L996,338" stroke="#3b82f6" stroke-width="1.8" fill="none" marker-end="url(#mB)"/>
-  <text x="960" y="298" text-anchor="middle" font-size="8" fill="#3b82f6" font-family="'Segoe UI',system-ui,sans-serif">REST</text>
+  <text x="960" y="298" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">REST</text>
 </g>
 
 <!-- eventlog → egisz -->
@@ -184,7 +188,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <!-- n3health → nsi-minzdrav (FAIL: update) -->
 <g id="a-n3h-nsi" class="el" style="--glow:rgba(220,38,38,.9)">
   <path class="arrow-path" d="M828,316 C800,400 620,460 510,480" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#mR)"/>
-  <text x="690" y="434" text-anchor="middle" font-size="8.5" fill="#b91c1c" font-family="'Segoe UI',system-ui,sans-serif">при FAIL: обновить справочник</text>
+  <text x="690" y="434" text-anchor="middle" font-size="9.5" fill="#b91c1c" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">при FAIL: обновить справочник</text>
 </g>
 
 <!-- nsi → redis-nsi -->
@@ -195,13 +199,13 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <!-- n3health → dlt (400/409) -->
 <g id="a-n3h-dlt" class="el" style="--glow:rgba(124,58,237,.9)">
   <path class="arrow-path" d="M788,327 L753,327" stroke="#7c3aed" stroke-width="1.6" fill="none" marker-end="url(#mV)"/>
-  <text x="785" y="319" text-anchor="middle" font-size="8" fill="#7c3aed" font-family="'Segoe UI',system-ui,sans-serif">400/409 → DLT</text>
+  <text x="785" y="319" text-anchor="middle" font-size="9" fill="#7c3aed" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">400/409 → DLT</text>
 </g>
 
 <!-- n3health retry loop -->
 <g id="a-n3h-retry" class="el" style="--glow:rgba(202,138,4,.9)">
   <path class="arrow-path" d="M950,270 C990,240 990,200 950,190 C930,186 910,196 898,210" stroke="#ca8a04" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mY)"/>
-  <text x="996" y="224" text-anchor="start" font-size="8.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif">повтор</text>
+  <text x="996" y="224" text-anchor="start" font-size="9.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">повтор</text>
 </g>
 
 
@@ -231,7 +235,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <!-- Kafka -->
 <g id="n-kafka" class="el" style="--glow:rgba(180,83,9,.9)">
-  <g class="node-g" transform="translate(634,248)">
+  <g class="node-g" transform="translate(654,248)">
     <rect class="node-rect" width="118" height="48" rx="8" fill="#92400e"/>
     <!-- Kafka logo: K with node circles -->
     <circle cx="10" cy="14" r="4" fill="rgba(0,0,0,0.35)"/>
@@ -246,7 +250,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <!-- n3health-backend -->
 <g id="n-n3health" class="el" style="--glow:rgba(99,102,241,.9)">
-  <g class="node-g" transform="translate(788,246)">
+  <g class="node-g" transform="translate(808,246)">
     <rect class="node-rect" width="162" height="70" rx="8" fill="#1e1b4b" stroke="#4f46e5" stroke-width="1.5"/>
     <text x="10" y="20" font-size="14" font-family="'Segoe UI',system-ui,sans-serif">☕</text>
     <text x="90" y="35" text-anchor="middle" font-size="12" fill="#e0e7ff" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">n3health-backend</text>
@@ -255,11 +259,17 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 </g>
 
 <!-- Kafka → DLT connector -->
-<line x1="693" y1="296" x2="693" y2="304" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="3,2"/>
+<line x1="713" y1="296" x2="713" y2="304" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+<!-- n3health → slack -->
+<g id="a-n3h-slack" class="el" style="--glow:rgba(236,72,153,.9)">
+  <path class="arrow-path" d="M868,316 C884,390 944,426 1012,446" stroke="#ec4899" stroke-width="1.8" fill="none" stroke-dasharray="4,3" marker-end="url(#mV)"/>
+  <text x="946" y="402" text-anchor="middle" font-size="9" fill="#be185d" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">Slack: DLT или stop listener</text>
+</g>
 
 <!-- DLT — sub-topic of Kafka, placed directly below -->
 <g id="n-dlt" class="el" style="--glow:rgba(124,58,237,.9)">
-  <g class="node-g" transform="translate(634,304)">
+  <g class="node-g" transform="translate(654,304)">
     <rect class="node-rect" width="118" height="46" rx="7" fill="#450a0a" stroke="#dc2626" stroke-width="1.5"/>
     <text x="59" y="17" text-anchor="middle" font-size="8.5" fill="#fca5a5" font-family="'Segoe UI',system-ui,sans-serif">Мёртвая очередь</text>
     <text x="59" y="31" text-anchor="middle" font-size="9.5" fill="#fecaca" font-weight="600" font-family="'Segoe UI',system-ui,sans-serif">Dead Letter Topic</text>
@@ -318,6 +328,17 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
     <text x="12" y="22" font-size="15" font-family="'Segoe UI',system-ui,sans-serif">🐘</text>
     <text x="116" y="20" text-anchor="middle" font-size="11" fill="#90c6e8" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">PostgreSQL</text>
     <text x="116" y="36" text-anchor="middle" font-size="8.5" fill="#5b9fc0" font-family="'Segoe UI',system-ui,sans-serif">статусы медицинских документов</text>
+  </g>
+</g>
+
+<!-- Slack -->
+<g id="n-slack" class="el" style="--glow:rgba(236,72,153,.9)">
+  <g class="node-g" transform="translate(1014,438)">
+    <rect class="node-rect" width="248" height="66" rx="8" fill="#fdf2f8" stroke="#ec4899" stroke-width="1.7"/>
+    <text x="124" y="21" text-anchor="middle" font-size="10.5" fill="#9d174d" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">Slack / операционное уведомление</text>
+    <text x="124" y="38" text-anchor="middle" font-size="8.5" fill="#be185d" font-family="'Segoe UI',system-ui,sans-serif">400/409 -> DLT + Slack</text>
+    <text x="124" y="51" text-anchor="middle" font-size="8.5" fill="#be185d" font-family="'Segoe UI',system-ui,sans-serif">прочие 4xx или сеть после retry -> stop listener + Slack</text>
+    <text x="124" y="63" text-anchor="middle" font-size="8" fill="#db2777" font-family="'Segoe UI',system-ui,sans-serif">операционное уведомление из n3health-backend</text>
   </g>
 </g>
 
@@ -394,7 +415,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 // ─── All elements in diagram (for dim/undim) ───────────────────────────────
 const ALL_EL = [
   'n-actor','n-optima','n-kafka','n-n3health','n-postgres',
-  'n-pix','n-emk','n-eventlog','n-egisz',
+  'n-pix','n-emk','n-eventlog','n-egisz','n-slack',
   'n-dlt',
   'n-redis-lock','n-redis-nsi','n-redis-rate','n-nsi',
   'a-fe-opt','a-opt-pg',
@@ -402,7 +423,7 @@ const ALL_EL = [
   'a-opt-pix','a-opt-emk',
   'a-pix-egisz','a-emk-egisz',
   'a-kafka-n3h','a-n3h-kafka-out','a-kafka-result','a-opt-fe-result',
-  'a-n3h-rate','a-n3h-evlog','a-evlog-egisz',
+  'a-n3h-rate','a-n3h-evlog','a-evlog-egisz','a-n3h-slack',
   'a-n3h-nsi','a-nsi-redis',
   'a-n3h-dlt','a-n3h-retry'
 ];
@@ -426,8 +447,8 @@ const SCENARIOS = {
       { el:['n-optima','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Медицинский документ (XML) передаётся в ЕГИСЗ через EMKService / AddMedRecord.' },
       { el:['n-kafka','a-kafka-n3h','n-n3health'],        text:'Kafka доставляет в n3health-backend задачу: проверить статус обработки документа в ЕГИСЗ.' },
       { el:['n-n3health','a-n3h-rate','n-redis-rate'],    text:'Redis проверяет: лимит запросов к EventLog API не превышен. Запрос разрешён. ✓' },
-      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'n3health спрашивает ЕГИСЗ: документ принят? EventLog REST возвращает статус.' },
-      { el:['n-n3health','a-n3h-kafka-out'],              text:'ЕГИСЗ ответил SUCCESS ✅. n3health отправляет результат обратно через Kafka.' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'n3health запрашивает статус документа через EventLog N3.Health.' },
+      { el:['n-n3health','a-n3h-kafka-out'],              text:'EventLog вернул статус SUCCESS ✅. n3health отправляет результат обратно через Kafka.' },
       { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус SUCCESS из Kafka.' },
       { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус заказа SUCCESS записан в PostgreSQL.' },
       { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит в интерфейсе: документ принят ЕГИСЗ ✅' },
@@ -445,8 +466,8 @@ const SCENARIOS = {
       { el:['n-optima','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Медицинский документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health'],                  text:'n3health-backend получает задачу проверить статус.' },
       { el:['a-n3h-rate','n-redis-rate'],                 text:'Лимит запросов не превышен. ✓' },
-      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog ЕГИСЗ. Ожидаем ответ...' },
-      { el:['n-n3health','a-n3h-nsi'],                    text:'❌ ЕГИСЗ вернул FAIL: документ отклонён. Возможно, данные устарели — n3health обновляет справочник из Минздрава.' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog N3.Health. Ожидаем статус документа...' },
+      { el:['n-n3health','a-n3h-nsi'],                    text:'❌ EventLog вернул статус FAIL: документ отклонён. Возможно, данные устарели — n3health обновляет справочник из Минздрава.' },
       { el:['n-nsi','a-nsi-redis','n-redis-nsi'],         text:'Свежие данные из НСИ Росминздрава сохранены в Redis-кеш.' },
       { el:['n-n3health','a-n3h-kafka-out'],              text:'Статус FAIL отправляется обратно через Kafka.' },
       { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус FAIL из Kafka.' },
@@ -473,11 +494,11 @@ const SCENARIOS = {
       { el:['a-opt-lock','n-redis-lock','a-opt-nsi','n-redis-nsi'], text:'Redis: не дубль, справочник выдан. ✓' },
       { el:['n-optima','a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу, лимит не превышен.' },
-      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос в EventLog... ЕГИСЗ отвечает: документ ещё обрабатывается. Статус не готов.' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос в EventLog... EventLog возвращает: документ ещё обрабатывается. Статус не готов.' },
       { el:['n-n3health','a-n3h-retry'],                  text:'⏳ @Retryable: ждём и повторяем REST-запрос с нарастающей задержкой (backoff).' },
       { el:['n-n3health','a-n3h-evlog','n-eventlog'],     text:'Повторный запрос... Всё ещё не готово. Задача возвращается в Kafka retry-очередь.' },
       { el:['n-n3health','a-n3h-rate','n-redis-rate'],    text:'Лимит запросов снова проверяется перед каждой попыткой.' },
-      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Очередная попытка... На этот раз ЕГИСЗ отвечает SUCCESS ✅' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Очередная попытка... На этот раз EventLog возвращает SUCCESS ✅' },
       { el:['n-n3health','a-n3h-kafka-out','a-kafka-result','n-optima'], text:'Результат SUCCESS доставлен обратно в систему учёта.' },
       { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус SUCCESS записан в PostgreSQL.' },
       { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит: документ принят ✅' },
@@ -505,12 +526,26 @@ const SCENARIOS = {
       { el:['n-actor','a-fe-opt','n-optima'],              text:'Стандартный путь: документ поступил в систему учёта.' },
       { el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу. Лимит не превышен.' },
-      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog... ЕГИСЗ вернул HTTP 400 или 409 — некорректный запрос или конфликт данных.' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog... EventLog вернул HTTP 400 или 409 — некорректный запрос или конфликт данных.' },
       { el:['n-n3health','a-n3h-dlt','n-dlt'],            text:'Сообщение уходит в Dead Letter Topic. @RetryableTopic не будет пытаться повторить — это клиентская ошибка.' },
       { el:['n-n3health','a-n3h-kafka-out'],              text:'В Kafka отправляется статус BAD_REQUEST. Уведомление в Slack.' },
       { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус BAD_REQUEST.' },
       { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус BAD_REQUEST записан в PostgreSQL.' },
       { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит: ошибка запроса. Нужна ручная проверка данных.' },
+    ]
+  },
+
+  client4xx: {
+    label: '🛑 Другой 4xx от EventLog',
+    color: '#f97316',
+    steps: [
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Стандартный путь: документ поступил в систему учёта.' },
+      { el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
+      { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу на проверку статуса. Лимит не превышен.' },
+      { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog... EventLog вернул другой HTTP 4xx, не 400 и не 409.' },
+      { el:['n-n3health','a-n3h-slack','n-slack'],         text:'n3health отправляет операционное уведомление в Slack с деталями ошибки.' },
+      { el:['n-n3health'],                                 text:'Kafka listener в n3health-backend останавливается до ручного вмешательства.' },
+      { el:['n-actor'],                                    text:'Новый финальный статус в систему учёта не возвращается: требуется разбор ошибки сопровождением.' },
     ]
   }
 };
