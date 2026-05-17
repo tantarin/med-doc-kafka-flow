@@ -90,20 +90,10 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <!-- ═══ ARROWS ═══ -->
 
-<!-- actor ↔ ecp -->
-<g id="a-fe-ecp" class="el" style="--glow:rgba(109,40,217,.9)">
-  <path class="arrow-path" d="M178,246 L316,148" stroke="#7c3aed" stroke-width="1.8" fill="none" marker-end="url(#mV)"/>
-  <text x="268" y="186" text-anchor="middle" font-size="8.5" fill="#7c3aed" font-family="'Segoe UI',system-ui,sans-serif">XML на подпись</text>
-</g>
-<g id="a-ecp-fe" class="el" style="--glow:rgba(109,40,217,.9)">
-  <path class="arrow-path" d="M284,148 L134,246" stroke="#7c3aed" stroke-width="1.6" fill="none" stroke-dasharray="5,3" marker-end="url(#mV)"/>
-  <text x="196" y="184" text-anchor="middle" font-size="8.5" fill="#7c3aed" font-family="'Segoe UI',system-ui,sans-serif">подписанный XML</text>
-</g>
-
 <!-- actor → optima -->
 <g id="a-fe-opt" class="el" style="--glow:rgba(37,99,235,.9)">
   <path class="arrow-path" d="M316,278 L388,278" stroke="#2563eb" stroke-width="2" fill="none" marker-end="url(#mB)"/>
-  <text x="352" y="268" text-anchor="middle" font-size="8.5" fill="#2563eb" font-family="'Segoe UI',system-ui,sans-serif">подписанный XML</text>
+  <text x="352" y="268" text-anchor="middle" font-size="8.5" fill="#2563eb" font-family="'Segoe UI',system-ui,sans-serif">XML документ</text>
 </g>
 
 <!-- optima → redis-lock -->
@@ -224,15 +214,6 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
     <text x="146" y="20" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="'Segoe UI',system-ui,sans-serif">Офтальмолог · после проверки зрения</text>
     <text x="146" y="40" text-anchor="middle" font-size="12" fill="#f1f5f9" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">Нажимает «Отправить документ»</text>
     <text x="146" y="57" text-anchor="middle" font-size="8.5" fill="#64748b" font-family="'Segoe UI',system-ui,sans-serif">Frontend</text>
-  </g>
-</g>
-
-<!-- ЭЦП -->
-<g id="n-ecp" class="el" style="--glow:rgba(109,40,217,.9)">
-  <g class="node-g" transform="translate(268,100)">
-    <rect class="node-rect" width="156" height="48" rx="8" fill="#6d28d9"/>
-    <text x="78" y="18" text-anchor="middle" font-size="9.5" fill="#ddd6fe" font-family="'Segoe UI',system-ui,sans-serif">Электронная подпись</text>
-    <text x="78" y="34" text-anchor="middle" font-size="11" fill="#fff" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">ЭЦП (CryptoPro)</text>
   </g>
 </g>
 
@@ -395,11 +376,11 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <script>
 // ─── All elements in diagram (for dim/undim) ───────────────────────────────
 const ALL_EL = [
-  'n-actor','n-ecp','n-optima','n-kafka','n-n3health',
+  'n-actor','n-optima','n-kafka','n-n3health',
   'n-pix','n-emk','n-eventlog','n-egisz',
   'n-dlt',
   'n-redis-lock','n-redis-nsi','n-redis-rate','n-nsi',
-  'a-fe-ecp','a-ecp-fe','a-fe-opt',
+  'a-fe-opt',
   'a-opt-lock','a-opt-nsi','a-opt-kafka','a-kafka-async',
   'a-opt-pix','a-opt-emk',
   'a-pix-egisz','a-emk-egisz',
@@ -417,10 +398,8 @@ const SCENARIOS = {
     color: '#16a34a',
     labelClass: 'background:#166534',
     steps: [
-      { el:['n-actor'],                                    text:'Врач заполняет документ и нажимает «Отправить в ЕГИСЗ».' },
-      { el:['n-actor','a-fe-ecp'],                        text:'Рабочий стол отправляет XML-документ плагину CryptoPro для подписи.' },
-      { el:['n-ecp','a-ecp-fe'],                          text:'CryptoPro подписывает XML электронной цифровой подписью врача и возвращает подписанный файл.' },
-      { el:['n-actor','a-fe-opt','n-optima'],             text:'Подписанный XML поступает на бэкенд системы учёта оптики.' },
+      { el:['n-actor'],                                    text:'Офтальмолог нажимает «Отправить документ» после проверки зрения.' },
+      { el:['n-actor','a-fe-opt','n-optima'],             text:'XML документ поступает на бэкенд системы учёта оптики.' },
       { el:['n-optima','a-opt-lock','n-redis-lock'],      text:'Redis проверяет: этот заказ ещё не отправлялся ранее. Блокировка успешно установлена на 3 дня. ✓' },
       { el:['n-optima','a-opt-nsi','n-redis-nsi'],        text:'Redis выдаёт название субъекта РФ по коду ОКАТО — оно нужно для заполнения поля адреса в XML.' },
       { el:['n-optima','a-opt-kafka','n-kafka'],          text:'Система учёта помещает в Kafka две задачи: зарегистрировать пациента и передать документ.' },
@@ -441,9 +420,7 @@ const SCENARIOS = {
     label: '❌ ЕГИСЗ отклонил документ',
     color: '#dc2626',
     steps: [
-      { el:['n-actor'],                                    text:'Врач отправляет документ.' },
-      { el:['n-actor','a-fe-ecp','n-ecp','a-ecp-fe'],     text:'XML подписывается ЭЦП.' },
-      { el:['a-fe-opt','n-optima'],                       text:'Подписанный XML поступает в систему учёта.' },
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Офтальмолог отправляет документ, XML поступает в систему учёта.' },
       { el:['a-opt-lock','n-redis-lock'],                 text:'Redis: заказ ещё не отправлялся. Блокировка установлена. ✓' },
       { el:['a-opt-nsi','n-redis-nsi'],                   text:'Redis выдаёт справочник регионов для XML. ✓' },
       { el:['n-optima','a-opt-kafka','n-kafka','a-kafka-async'], text:'Задачи помещены в Kafka, возвращены для выполнения.' },
@@ -463,9 +440,7 @@ const SCENARIOS = {
     label: '🔒 Повторная отправка',
     color: '#2563eb',
     steps: [
-      { el:['n-actor'],                                    text:'Врач снова нажимает «Отправить в ЕГИСЗ» — возможно, случайно или решил переотправить.' },
-      { el:['n-actor','a-fe-ecp','n-ecp','a-ecp-fe'],     text:'XML подписывается ЭЦП.' },
-      { el:['a-fe-opt','n-optima'],                       text:'Подписанный XML поступает в систему учёта.' },
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Офтальмолог снова нажимает «Отправить» — возможно, случайно. XML поступает в систему учёта.' },
       { el:['n-optima','a-opt-lock','n-redis-lock'],      text:'🔒 Redis проверяет блокировку. Флаг уже установлен — этот заказ уже был отправлен!' },
       { el:['n-actor'],                                   text:'🚫 Повторная отправка заблокирована. В интерфейс возвращается ошибка «Заказ уже отправляется». Kafka и ЕГИСЗ не затронуты — дублей не будет.' },
     ]
@@ -475,8 +450,7 @@ const SCENARIOS = {
     label: '⏳ ЕГИСЗ ещё обрабатывает',
     color: '#d97706',
     steps: [
-      { el:['n-actor'],                                    text:'Врач отправляет документ.' },
-      { el:['n-actor','a-fe-ecp','n-ecp','a-ecp-fe','a-fe-opt','n-optima'], text:'XML подписан, поступил в систему учёта.' },
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Офтальмолог отправляет документ, XML поступает в систему учёта.' },
       { el:['a-opt-lock','n-redis-lock','a-opt-nsi','n-redis-nsi'], text:'Redis: не дубль, справочник выдан. ✓' },
       { el:['n-optima','a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу, лимит не превышен.' },
@@ -493,7 +467,7 @@ const SCENARIOS = {
     label: '🚨 Сетевая ошибка EventLog',
     color: '#ef4444',
     steps: [
-      { el:['n-actor','a-fe-ecp','n-ecp','a-ecp-fe','a-fe-opt','n-optima'], text:'Стандартный путь: документ подписан, поступил в систему учёта.' },
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Стандартный путь: документ поступил в систему учёта.' },
       { el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу проверить статус. Лимит не превышен.' },
       { el:['n-n3health','a-n3h-evlog','n-eventlog'],     text:'Запрос к EventLog... 🔌 Сеть недоступна! ResourceAccessException.' },
@@ -507,7 +481,7 @@ const SCENARIOS = {
     label: '🚫 Ошибка 400/409 от ЕГИСЗ',
     color: '#7c3aed',
     steps: [
-      { el:['n-actor','a-fe-ecp','n-ecp','a-ecp-fe','a-fe-opt','n-optima'], text:'Стандартный путь: документ подписан, поступил в систему учёта.' },
+      { el:['n-actor','a-fe-opt','n-optima'],              text:'Стандартный путь: документ поступил в систему учёта.' },
       { el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.' },
       { el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу. Лимит не превышен.' },
       { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog... ЕГИСЗ вернул HTTP 400 или 409 — некорректный запрос или конфликт данных.' },
