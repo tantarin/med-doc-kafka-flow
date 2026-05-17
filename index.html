@@ -60,8 +60,8 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 </style>
 </head>
 <body>
-<h1>Поток медицинских документов — интеграция с ЕГИСЗ</h1>
 
+<h1>Задача Интеграция с ЕГИСЗ</h1>
 <div class="scenarios">
   <button class="sc-btn" data-id="success">✅ Успешная отправка</button>
   <button class="sc-btn" data-id="fail">❌ ЕГИСЗ отклонил документ</button>
@@ -171,6 +171,13 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   <path class="arrow-path" d="M950,270 C990,240 990,200 950,190 C930,186 910,196 898,210" stroke="#ca8a04" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#mY)"/>
   <text x="996" y="224" text-anchor="start" font-size="9.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">повтор</text>
 </g>
+<g data-id="n-retry-rest" class="el" style="--glow:rgba(202,138,4,.9)">
+  <g class="node-g" transform="translate(948,172)">
+    <rect class="node-rect" width="106" height="32" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.2"/>
+    <text x="53" y="10" text-anchor="middle" font-size="8" fill="#713f12" font-weight="600" font-family="'Segoe UI',system-ui,sans-serif">↻ retry REST ×3 · 2с 4с 8с</text>
+    <text x="53" y="20" text-anchor="middle" font-size="7.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif">EventLog не отвечает</text>
+  </g>
+</g>
 <g data-id="a-n3h-slack" class="el" style="--glow:rgba(236,72,153,.9)">
   <path class="arrow-path" d="M868,316 C884,390 944,426 1012,446" stroke="#ec4899" stroke-width="1.8" fill="none" stroke-dasharray="4,3" marker-end="url(#mV)"/>
   <text x="946" y="402" text-anchor="middle" font-size="9" fill="#be185d" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">уведомление в Slack</text>
@@ -236,6 +243,22 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   <g class="node-g" transform="translate(820,356)">
     <rect class="node-rect" width="138" height="22" rx="11" fill="#dc2626" stroke="#991b1b" stroke-width="1"/>
     <text x="69" y="15" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">🛑 listener остановлен</text>
+  </g>
+</g>
+<g data-id="n-scheduler" class="el" style="--glow:rgba(16,185,129,.9)">
+  <g class="node-g" transform="translate(820,388)">
+    <rect class="node-rect" width="138" height="24" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2"/>
+    <text x="69" y="16" text-anchor="middle" font-size="8" fill="#065f46" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">⏱ scheduled job · +10 мин</text>
+  </g>
+</g>
+<g data-id="a-scheduler-listener" class="el" style="--glow:rgba(16,185,129,.9)">
+  <path class="arrow-path" d="M820,400 C796,400 796,338 820,338" stroke="#10b981" stroke-width="1.5" fill="none" stroke-dasharray="4,2" marker-end="url(#mG)"/>
+  <text x="793" y="372" text-anchor="end" font-size="8" fill="#065f46" font-family="'Segoe UI',system-ui,sans-serif" class="flow-note">авто</text>
+</g>
+<g data-id="n-kafka-wait" class="el">
+  <g class="node-g" transform="translate(654,300)">
+    <rect class="node-rect" width="118" height="18" rx="9" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+    <text x="59" y="13" text-anchor="middle" font-size="7.5" fill="#92400e" font-family="'Segoe UI',system-ui,sans-serif">⏸ ждут в Kafka · не теряются</text>
   </g>
 </g>
 <g data-id="n-dlt" class="el" style="--glow:rgba(124,58,237,.9)">
@@ -360,12 +383,12 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 
 <script>
 const ALL_EL = [
-  'n-actor','n-optima','n-kafka','n-n3health','n-n3h-listener','n-listener-stop','n-postgres',
-  'n-pix','n-emk','n-eventlog','n-egisz','n-slack','n-ops','n-dlt',
+  'n-actor','n-optima','n-kafka','n-n3health','n-n3h-listener','n-listener-stop','n-scheduler','n-postgres',
+  'n-pix','n-emk','n-eventlog','n-egisz','n-slack','n-ops','n-dlt','n-retry-rest','n-kafka-wait',
   'n-redis-lock','n-redis-nsi','n-redis-rate','n-nsi','n-redis-section','n-n3h-box',
   'a-fe-opt','a-opt-pg','a-opt-lock','a-opt-lock-release','a-opt-nsi','a-opt-kafka','a-kafka-async',
   'a-opt-pix','a-opt-emk','a-pix-egisz','a-emk-egisz',
-  'a-kafka-n3h','a-n3h-kafka-out','a-kafka-result','a-opt-fe-result',
+  'a-kafka-n3h','a-n3h-kafka-out','a-kafka-result','a-opt-fe-result','a-scheduler-listener',
   'a-n3h-rate','a-n3h-evlog','a-evlog-egisz','a-n3h-slack','a-slack-ops','a-ops-n3h',
   'a-n3h-nsi','a-nsi-redis','a-n3h-dlt','a-n3h-retry'
 ];
@@ -446,12 +469,11 @@ const SCENARIOS = {
       {el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.'},
       {el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу. Лимит не превышен.'},
       {el:['n-n3health','a-n3h-evlog','n-eventlog'], text:'Запрос к EventLog... 🔌 Сеть недоступна! ResourceAccessException.'},
-      {el:['n-n3health','a-n3h-retry'], text:'@Retryable: попытка 2 с задержкой... снова ошибка сети.'},
-      {el:['n-n3health','a-n3h-retry'], text:'@Retryable: все попытки исчерпаны.'},
-      {el:['n-n3health','n-n3h-listener','n-listener-stop','a-n3h-slack','n-slack'], text:'🚨 @Recover: Kafka listener ОСТАНОВЛЕН. Уведомление в Slack. Новые сообщения из Kafka не читаются — все документы в очереди заморожены.'},
-      {el:['n-slack','a-slack-ops','n-ops'], text:'Сигнал получен — начинается ручной разбор причины сетевой недоступности.'},
-      {el:['n-ops','a-ops-n3h','n-n3health','n-n3h-listener'], text:'После устранения проблемы — ручной перезапуск listener. Kafka consumer возобновляет чтение.'},
-      {el:['n-actor'], text:'Пока listener был остановлен, финальный статус в систему учёта не возвращался. После перезапуска очередь обрабатывается в штатном режиме.'},
+      {el:['n-n3health','a-n3h-retry','n-retry-rest'], text:'@Retryable: 3 попытки с backoff 2с → 4с → 8с. Каждый раз — сетевая ошибка.'},
+      {el:['n-n3health','n-n3h-listener','n-listener-stop','a-n3h-slack','n-slack'], text:'🚨 Все попытки исчерпаны. @Recover: listener ОСТАНОВЛЕН. Уведомление в Slack.'},
+      {el:['n-scheduler','a-scheduler-listener','n-n3h-listener'], text:'⏱ Через 10 минут scheduled job автоматически перезапускает listener — ручное вмешательство может не понадобиться.'},
+      {el:['n-slack','a-slack-ops','n-ops','a-ops-n3h','n-n3health'], text:'Параллельно: Slack-уведомление получено, ведётся разбор причины. При необходимости — ручной перезапуск.'},
+      {el:['n-actor'], text:'После перезапуска все накопившиеся в Kafka документы обрабатываются в штатном режиме.'},
     ]
   },
   badreq:{
@@ -461,11 +483,11 @@ const SCENARIOS = {
       {el:['a-opt-kafka','n-kafka','a-kafka-async','a-opt-emk','n-emk','a-emk-egisz','n-egisz'], text:'Документ передан в ЕГИСЗ.'},
       {el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу. Лимит не превышен.'},
       {el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'EventLog вернул HTTP 400 или 409 — некорректный запрос или конфликт данных.'},
-      {el:['n-n3health','a-n3h-dlt','n-dlt'], text:'Клиентская ошибка — повторять бессмысленно. Сообщение уходит в Dead Letter Topic.'},
-      {el:['n-n3h-listener'], text:'⚠️ Listener НЕ останавливается — продолжает читать следующие сообщения.'},
-      {el:['n-n3health','a-n3h-slack','n-slack'], text:'⚠️ Slack: документ попал в DLT. Сигнал для ручного разбора.'},
+      {el:['n-n3health','a-n3h-dlt','n-dlt'], text:'400/409 — повторять бессмысленно: копия сообщения → DLT для разбора. При этом статус BAD_REQUEST всё равно отправляется обратно в optima через Kafka — заказ не зависнет.'},
+      {el:['n-n3h-listener'], text:'⚠️ Listener НЕ останавливается — продолжает читать следующие сообщения из очереди.'},
+      {el:['n-n3health','a-n3h-slack','n-slack'], text:'Slack: документ попал в DLT — сигнал для ручного разбора содержимого.'},
       {el:['n-n3health','a-n3h-kafka-out'], text:'Статус BAD_REQUEST отправляется обратно через Kafka.'},
-      {el:['n-kafka','a-kafka-result','n-optima'], text:'Система учёта получает статус BAD_REQUEST.'},
+      {el:['n-kafka','a-kafka-result','n-optima'], text:'optima получает BAD_REQUEST. Заказ НЕ завис — статус известен.'},
       {el:['n-optima','a-opt-lock-release','n-redis-lock'], text:'Получен финальный статус — Redis Lock снимается. Данные нужно исправить перед повторной отправкой.'},
       {el:['n-optima','a-opt-pg','n-postgres'], text:'Статус BAD_REQUEST записан в PostgreSQL.'},
       {el:['n-optima','a-opt-fe-result','n-actor'], text:'Офтальмолог видит: ошибка запроса. Нужна ручная проверка данных.'},
@@ -474,12 +496,21 @@ const SCENARIOS = {
   freeze:{
     label:'⏸ Очередь заморожена', color:'#64748b',
     steps:[
-      {el:['n-n3health','n-n3h-listener','n-listener-stop'], text:'Listener остановлен: n3health перестал читать Kafka из-за критической ошибки EventLog (сетевой или неожиданный 4xx). Это затрагивает не один документ — весь поток.'},
-      {el:['n-kafka','n-n3health','n-n3h-listener','n-listener-stop'], text:'Kafka продолжает принимать задачи. Документы от всех офтальмологов накапливаются в очереди — но никто их не читает.'},
-      {el:['n-actor','a-fe-opt','n-optima','a-opt-kafka','n-kafka'], text:'Новые отправки продолжают поступать и уходить в очередь. Офтальмологи не получают никакого финального статуса — всё зависло.'},
-      {el:['n-slack','a-slack-ops','n-ops'], text:'Slack-уведомление отправлено при остановке. Начинается ручной разбор причины.'},
-      {el:['n-ops','a-ops-n3h','n-n3health','n-n3h-listener'], text:'После устранения причины — ручной перезапуск listener. Kafka consumer снова активен.'},
-      {el:['n-kafka','a-kafka-n3h','n-n3health'], text:'✅ Все накопившиеся сообщения читаются и обрабатываются по порядку. Офтальмологи начинают получать статусы по всем ожидавшим документам.'},
+      {el:['n-actor','a-fe-opt','n-optima'], text:'Офтальмолог отправляет документ — стандартный старт.'},
+      {el:['n-optima','a-opt-kafka','n-kafka'], text:'Задача попадает в Kafka и ждёт обработки.'},
+      {el:['n-kafka','a-kafka-n3h','n-n3health','n-n3h-listener'], text:'n3health читает задачу из Kafka через listener.'},
+      {el:['n-n3health','a-n3h-evlog','n-eventlog'], text:'Запрос статуса в EventLog — 🔌 сетевая ошибка или неожиданный HTTP 4xx.'},
+      {el:['n-n3health','a-n3h-retry','n-retry-rest','a-n3h-evlog','n-eventlog'], text:'@Retryable: повторные запросы к EventLog с backoff 2с → 4с → 8с — каждый раз та же ошибка.'},
+      {el:['n-n3health','n-n3h-listener','n-listener-stop','a-n3h-slack','n-slack'], text:'🚨 @Recover: listener остановлен. Следующие сообщения из Kafka читаться не будут.'},
+      {el:['n-kafka','n-kafka-wait','n-n3health','n-n3h-listener','n-listener-stop'], text:'Сообщения накапливаются и ждут — не обрабатываются, но не удаляются. Новые документы от всех офтальмологов продолжают поступать в ту же очередь.'},
+      {el:['n-actor','a-fe-opt','n-optima','a-opt-kafka','n-kafka'], text:'Офтальмологи продолжают отправлять — задачи уходят в Kafka, но финального статуса никто не получает. Всё зависло.'},
+      {el:['n-slack','a-slack-ops','n-ops'], text:'Slack-уведомление отправлено при остановке. Начинается разбор причины.'},
+      {el:['n-scheduler','a-scheduler-listener','n-n3h-listener'], text:'⏱ Через 10 минут scheduled job автоматически перезапускает listener. Если проблема не устранена — listener снова упадёт, цикл повторится.'},
+      {el:['n-ops','a-ops-n3h','n-n3health','n-n3h-listener'], text:'При необходимости — ручной перезапуск после устранения первопричины.'},
+      {el:['n-kafka','a-kafka-n3h','n-n3health','n-n3h-listener'], text:'✅ Listener снова активен — consumer дочитывает backlog по порядку.'},
+      {el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Для каждого накопившегося сообщения: запрос статуса в EventLog.'},
+      {el:['n-n3health','a-n3h-kafka-out','a-kafka-result','n-optima'], text:'Финальный статус возвращается через Kafka в optima.'},
+      {el:['n-optima','a-opt-fe-result','n-actor'], text:'Офтальмологи получают статусы по всем ждавшим документам.'},
     ]
   },
   client4xx:{
@@ -490,10 +521,10 @@ const SCENARIOS = {
       {el:['a-kafka-n3h','n-n3health','a-n3h-rate','n-redis-rate'], text:'n3health получил задачу. Лимит не превышен.'},
       {el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'EventLog вернул другой HTTP 4xx (не 400 и не 409).'},
       {el:['n-n3health','a-n3h-slack','n-slack'], text:'Операционное уведомление в Slack с деталями ошибки.'},
-      {el:['n-n3health','n-n3h-listener','n-listener-stop'], text:'🚨 n3health вызывает stopListenerContainer() — listener ОСТАНОВЛЕН.'},
-      {el:['n-slack','a-slack-ops','n-ops'], text:'Сигнал получен — начинается ручной разбор.'},
-      {el:['n-ops','a-ops-n3h','n-n3health'], text:'После исправления — ручной перезапуск listener, чтение Kafka возобновляется.'},
-      {el:['n-actor'], text:'Пока listener остановлен — финальный статус в систему учёта не возвращается.'},
+      {el:['n-n3health','n-n3h-listener','n-listener-stop'], text:'🚨 n3health вызывает stopListenerContainer() — listener ОСТАНОВЛЕН. Все документы в очереди заморожены.'},
+      {el:['n-scheduler','a-scheduler-listener','n-n3h-listener'], text:'⏱ Через 10 минут scheduled job автоматически перезапускает listener — ручное вмешательство может не понадобиться.'},
+      {el:['n-slack','a-slack-ops','n-ops','a-ops-n3h','n-n3health'], text:'Параллельно: Slack-уведомление получено, ведётся разбор. При необходимости — ручной перезапуск.'},
+      {el:['n-actor'], text:'После перезапуска все накопившиеся документы обрабатываются в штатном режиме.'},
     ]
   }
 };
@@ -575,7 +606,6 @@ function selectScenario(id) {
   document.querySelector(`.sc-btn[data-id="${id}"]`).classList.add('active');
   setRelevant(SCENARIOS[id]);
   renderStep(0);
-  startPlay();
 }
 
 function nextStep() {
