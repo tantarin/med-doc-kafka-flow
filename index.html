@@ -82,6 +82,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   <marker id="mR"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#dc2626"/></marker>
   <marker id="mV"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#7c3aed"/></marker>
   <marker id="mY"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#ca8a04"/></marker>
+  <marker id="mP"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#336791"/></marker>
 </defs>
 
 <!-- ═══ N3.Health box ═══ -->
@@ -304,6 +305,22 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
   </g>
 </g>
 
+<!-- optima → postgres -->
+<g id="a-opt-pg" class="el" style="--glow:rgba(51,103,145,.9)">
+  <path class="arrow-path" d="M390,310 C350,340 270,362 226,374" stroke="#336791" stroke-width="1.6" fill="none" marker-end="url(#mP)"/>
+  <text x="308" y="348" text-anchor="middle" font-size="8" fill="#336791" font-family="'Segoe UI',system-ui,sans-serif">обновить статус</text>
+</g>
+
+<!-- PostgreSQL -->
+<g id="n-postgres" class="el" style="--glow:rgba(51,103,145,.9)">
+  <g class="node-g" transform="translate(24,358)">
+    <rect class="node-rect" width="200" height="50" rx="8" fill="#0f2942" stroke="#336791" stroke-width="1.5"/>
+    <text x="12" y="22" font-size="15" font-family="'Segoe UI',system-ui,sans-serif">🐘</text>
+    <text x="116" y="20" text-anchor="middle" font-size="11" fill="#90c6e8" font-weight="700" font-family="'Segoe UI',system-ui,sans-serif">PostgreSQL</text>
+    <text x="116" y="36" text-anchor="middle" font-size="8.5" fill="#5b9fc0" font-family="'Segoe UI',system-ui,sans-serif">статусы медицинских документов</text>
+  </g>
+</g>
+
 <!-- ═══ REDIS SECTION ═══ -->
 <rect x="24" y="464" width="900" height="84" rx="10" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.5"/>
 <!-- Redis logo: red circle with asterisk -->
@@ -376,11 +393,11 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <script>
 // ─── All elements in diagram (for dim/undim) ───────────────────────────────
 const ALL_EL = [
-  'n-actor','n-optima','n-kafka','n-n3health',
+  'n-actor','n-optima','n-kafka','n-n3health','n-postgres',
   'n-pix','n-emk','n-eventlog','n-egisz',
   'n-dlt',
   'n-redis-lock','n-redis-nsi','n-redis-rate','n-nsi',
-  'a-fe-opt',
+  'a-fe-opt','a-opt-pg',
   'a-opt-lock','a-opt-nsi','a-opt-kafka','a-kafka-async',
   'a-opt-pix','a-opt-emk',
   'a-pix-egisz','a-emk-egisz',
@@ -412,7 +429,8 @@ const SCENARIOS = {
       { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'n3health спрашивает ЕГИСЗ: документ принят? EventLog REST возвращает статус.' },
       { el:['n-n3health','a-n3h-kafka-out'],              text:'ЕГИСЗ ответил SUCCESS ✅. n3health отправляет результат обратно через Kafka.' },
       { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус SUCCESS из Kafka.' },
-      { el:['n-optima','a-opt-fe-result','n-actor'],       text:'Заказ обновлён: документ принят ЕГИСЗ. Врач видит финальный статус в интерфейсе.' },
+      { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус заказа SUCCESS записан в PostgreSQL.' },
+      { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит в интерфейсе: документ принят ЕГИСЗ ✅' },
     ]
   },
 
@@ -431,8 +449,9 @@ const SCENARIOS = {
       { el:['n-n3health','a-n3h-nsi'],                    text:'❌ ЕГИСЗ вернул FAIL: документ отклонён. Возможно, данные устарели — n3health обновляет справочник из Минздрава.' },
       { el:['n-nsi','a-nsi-redis','n-redis-nsi'],         text:'Свежие данные из НСИ Росминздрава сохранены в Redis-кеш.' },
       { el:['n-n3health','a-n3h-kafka-out'],              text:'Статус FAIL отправляется обратно через Kafka.' },
-      { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус FAIL.' },
-      { el:['n-optima','a-opt-fe-result','n-actor'],       text:'Заказ обновлён: ДОКУМЕНТ ОТКЛОНЁН. Нужна проверка данных пациента или лицензии клиники.' },
+      { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус FAIL из Kafka.' },
+      { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус FAIL записан в PostgreSQL.' },
+      { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит: ДОКУМЕНТ ОТКЛОНЁН. Нужна проверка данных пациента или лицензии клиники.' },
     ]
   },
 
@@ -459,7 +478,9 @@ const SCENARIOS = {
       { el:['n-n3health','a-n3h-evlog','n-eventlog'],     text:'Повторный запрос... Всё ещё не готово. Задача возвращается в Kafka retry-очередь.' },
       { el:['n-n3health','a-n3h-rate','n-redis-rate'],    text:'Лимит запросов снова проверяется перед каждой попыткой.' },
       { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Очередная попытка... На этот раз ЕГИСЗ отвечает SUCCESS ✅' },
-      { el:['n-n3health','a-n3h-kafka-out','a-kafka-result','n-optima','a-opt-fe-result','n-actor'], text:'Результат SUCCESS доставлен обратно. Заказ обновлён.' },
+      { el:['n-n3health','a-n3h-kafka-out','a-kafka-result','n-optima'], text:'Результат SUCCESS доставлен обратно в систему учёта.' },
+      { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус SUCCESS записан в PostgreSQL.' },
+      { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит: документ принят ✅' },
     ]
   },
 
@@ -487,7 +508,9 @@ const SCENARIOS = {
       { el:['n-n3health','a-n3h-evlog','n-eventlog','a-evlog-egisz','n-egisz'], text:'Запрос к EventLog... ЕГИСЗ вернул HTTP 400 или 409 — некорректный запрос или конфликт данных.' },
       { el:['n-n3health','a-n3h-dlt','n-dlt'],            text:'Сообщение уходит в Dead Letter Topic. @RetryableTopic не будет пытаться повторить — это клиентская ошибка.' },
       { el:['n-n3health','a-n3h-kafka-out'],              text:'В Kafka отправляется статус BAD_REQUEST. Уведомление в Slack.' },
-      { el:['n-kafka','a-kafka-result','n-optima','a-opt-fe-result','n-actor'], text:'Заказ обновлён со статусом ОШИБКА ЗАПРОСА. Нужна ручная проверка данных.' },
+      { el:['n-kafka','a-kafka-result','n-optima'],       text:'Система учёта получает статус BAD_REQUEST.' },
+      { el:['n-optima','a-opt-pg','n-postgres'],          text:'Статус BAD_REQUEST записан в PostgreSQL.' },
+      { el:['n-optima','a-opt-fe-result','n-actor'],      text:'Офтальмолог видит: ошибка запроса. Нужна ручная проверка данных.' },
     ]
   }
 };
