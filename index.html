@@ -552,11 +552,14 @@ function setRelevant(sc) {
     relevant.add('n-n3h-box');
 }
 
+const CONTAINERS = new Set(['n-n3h-box','n-redis-section']);
+
 function dimAll() {
   ALL_EL.forEach(id => {
     const el = q(id); if(!el) return;
     if(relevant.has(id)){
-      el.classList.remove('active','visited','hidden'); el.classList.add('dim');
+      el.classList.remove('active','visited','hidden');
+      el.classList.add(CONTAINERS.has(id) ? 'visited' : 'dim');
     } else {
       el.classList.remove('active','visited','dim'); el.classList.add('hidden');
     }
