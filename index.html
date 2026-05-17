@@ -66,7 +66,7 @@ h1{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:18px;letter-spacin
 <div class="scenarios">
   <button class="sc-btn" data-id="success">✅ Успешная отправка</button>
   <button class="sc-btn" data-id="fail">❌ ЕГИСЗ отклонил документ</button>
-  <button class="sc-btn" data-id="dupe">🔒 Повторная отправка того же заказа</button>
+  <button class="sc-btn" data-id="dupe">🔒 Офтальмолог нажал «Отправить» дважды</button>
   <button class="sc-btn" data-id="retry">⏳ ЕГИСЗ ещё обрабатывает</button>
   <button class="sc-btn" data-id="network">🚨 Сетевая ошибка EventLog</button>
   <button class="sc-btn" data-id="badreq">🚫 ЕГИСЗ вернул ошибку 400/409</button>
@@ -456,7 +456,7 @@ const SCENARIOS = {
   },
 
   dupe: {
-    label: '🔒 Повторная отправка',
+    label: '🔒 Офтальмолог нажал «Отправить» дважды',
     color: '#2563eb',
     steps: [
       { el:['n-actor','a-fe-opt','n-optima'],              text:'Офтальмолог снова нажимает «Отправить» — возможно, случайно. XML поступает в систему учёта.' },
