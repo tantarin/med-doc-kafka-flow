@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Как медицинский документ попадает в ЕГИСЗ</title>
+<title>Архитектура интеграции с ЕГИСЗ</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,790 +12,367 @@ body {
   background: #0d1117;
   color: #cdd9e5;
   min-height: 100vh;
-  padding: 36px 24px 60px;
+  padding: 40px 24px 80px;
 }
 
-/* ── PAGE HEADER ── */
-.page-title {
+/* ── HEADER ── */
+.page-header {
   text-align: center;
-  font-size: 1.35rem;
+  margin-bottom: 56px;
+}
+.page-title {
+  font-size: 1.4rem;
   font-weight: 700;
   color: #e6edf3;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .page-sub {
-  text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #6e7681;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
-.page-hint {
-  text-align: center;
-  font-size: 0.72rem;
-  color: #444c56;
-  margin-bottom: 40px;
-  animation: blink 2.5s ease-in-out infinite;
+.diagram-tags {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
-@keyframes blink { 0%,100%{opacity:.4} 50%{opacity:1} }
-
-/* ── PHASE LABEL ── */
-.phase-label {
+.diagram-tag {
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .1em;
-  color: #6e7681;
-  margin-bottom: 14px;
-  padding-left: 4px;
+  letter-spacing: .08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
 }
+.tag-c4       { color: #388bfd; border-color: #388bfd33; background: #388bfd11; }
+.tag-seq      { color: #3fb950; border-color: #3fb95033; background: #3fb95011; }
+.tag-state    { color: #d29922; border-color: #d2992233; background: #d2992211; }
 
-/* ── SCROLL WRAPPER ── */
-.scroll-wrapper { overflow-x: auto; padding-bottom: 8px; }
-
-/* ── FLOW ROW ── */
-.flow-row {
+/* ── SECTION ── */
+.diagram-section {
+  max-width: 1100px;
+  margin: 0 auto 64px;
+}
+.section-meta {
   display: flex;
-  align-items: stretch;
-  min-width: max-content;
-  gap: 0;
-  margin-bottom: 32px;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
 }
-
-/* ── SERVICE BOX ── */
-.svc {
-  width: 185px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-/* color themes */
-.svc.actor    { background: #1a1038; border-color: #6e40c9; }
-.svc.frontend { background: #0d2136; border-color: #1f6feb; }
-.svc.backend  { background: #131d2e; border-color: #388bfd; }
-.svc.queue    { background: #1e1208; border-color: #d29922; }
-.svc.n3h      { background: #0d1f14; border-color: #3fb950; }
-.svc.egisz    { background: #1f1206; border-color: #f0883e; }
-
-.svc-head {
-  padding: 14px 12px 12px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-.svc-icon { font-size: 1.9rem; line-height: 1; }
-.svc-name {
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-top: 7px;
-  color: #e6edf3;
-  line-height: 1.3;
-}
-.svc-tag {
-  display: inline-block;
-  font-size: 0.6rem;
+.section-badge {
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .07em;
-  margin-top: 5px;
-  padding: 2px 8px;
+  letter-spacing: .1em;
+  padding: 2px 9px;
   border-radius: 20px;
-  opacity: .85;
-}
-.actor .svc-tag    { background: #6e40c9; color: #e2d9f3; }
-.frontend .svc-tag { background: #1f6feb; color: #cae8ff; }
-.backend .svc-tag  { background: #388bfd; color: #cae8ff; }
-.queue .svc-tag    { background: #d29922; color: #fff3cd; }
-.n3h .svc-tag      { background: #3fb950; color: #d2f4dc; }
-.egisz .svc-tag    { background: #f0883e; color: #ffe0b2; }
-
-.svc-body {
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  flex: 1;
-}
-
-/* ── STEP ITEM ── */
-.step {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.04);
-  background: rgba(255,255,255,.03);
-  cursor: pointer;
-  transition: background .15s, border-color .15s, transform .1s;
-  font-size: 0.76rem;
-  line-height: 1.4;
-  color: #adbac7;
-}
-.step:hover {
-  background: rgba(255,255,255,.08);
-  border-color: rgba(255,255,255,.15);
-  transform: translateY(-1px);
-  color: #e6edf3;
-}
-.step-num {
-  font-size: 0.62rem;
-  font-weight: 800;
+  border: 1px solid;
   flex-shrink: 0;
-  margin-top: 1px;
-  width: 16px;
-  text-align: right;
-  opacity: .45;
 }
-.step-icon { flex-shrink: 0; font-size: 0.9rem; }
+.badge-c4    { color: #388bfd; border-color: #388bfd44; }
+.badge-seq   { color: #3fb950; border-color: #3fb95044; }
+.badge-state { color: #d29922; border-color: #d2992244; }
 
-/* ── CONNECTOR (arrow between services) ── */
-.conn {
-  width: 56px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 88px; /* align vertically with svc-body */
-  gap: 6px;
-}
-
-.arrow-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  gap: 2px;
-}
-.arrow-lbl {
-  font-size: 0.56rem;
-  color: #444c56;
-  text-align: center;
-  line-height: 1.3;
-  max-width: 52px;
-}
-.arrow-line {
-  width: 100%;
-  height: 2px;
-  position: relative;
-}
-.arrow-line::after {
-  content: '';
-  position: absolute;
-  right: -1px;
-  top: -4px;
-  border-left: 9px solid currentColor;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-}
-
-/* forward arrow */
-.arr-fwd .arrow-line { background: #30363d; color: #30363d; }
-.arr-fwd .arrow-lbl { color: #555d6a; }
-
-/* return arrow (dashed) */
-.arr-ret .arrow-line {
-  background: none;
-  border-top: 2px dashed #2a3340;
-  height: 0;
-  color: #2a3340;
-  margin-top: 12px;
-}
-.arr-ret .arrow-line::after {
-  right: auto;
-  left: -1px;
-  border-left: none;
-  border-right: 9px solid #2a3340;
-  top: -4px;
-}
-.arr-ret .arrow-lbl { color: #3a4450; margin-top: 4px; }
-
-/* ── STATUS BADGE (inside step) ── */
-.badge {
-  display: inline-block;
-  font-size: 0.6rem;
-  padding: 1px 6px;
-  border-radius: 10px;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-.badge-ok  { background: #1a3020; color: #3fb950; }
-.badge-err { background: #2d1010; color: #f85149; }
-
-/* ── MODAL ── */
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(1,4,9,.8);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(6px);
-}
-.overlay.open { display: flex; }
-
-.modal {
-  background: #161b22;
-  border: 1px solid #30363d;
-  border-radius: 16px;
-  max-width: 540px;
-  width: 100%;
-  padding: 28px 28px 24px;
-  position: relative;
-  animation: popIn .18s ease;
-  box-shadow: 0 20px 60px rgba(0,0,0,.7);
-}
-@keyframes popIn { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
-
-.modal-close {
-  position: absolute;
-  top: 14px; right: 14px;
-  background: #21262d;
-  border: 1px solid #30363d;
-  color: #8b949e;
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: .9rem;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s;
-}
-.modal-close:hover { background: #30363d; color: #cdd9e5; }
-
-.modal-icon { font-size: 2.2rem; margin-bottom: 10px; }
-.modal-title {
+.section-title {
   font-size: 1.05rem;
   font-weight: 700;
   color: #e6edf3;
-  margin-bottom: 14px;
-  line-height: 1.3;
 }
-.modal-body {
-  font-size: 0.84rem;
-  line-height: 1.7;
-  color: #8b949e;
-}
-.modal-body p { margin-bottom: 12px; }
-.modal-body p:last-child { margin-bottom: 0; }
-.modal-body strong { color: #cdd9e5; }
-.modal-body em { color: #58a6ff; font-style: normal; }
-
-/* ── LEGEND ── */
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 40px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.7rem;
+.section-desc {
+  font-size: 0.78rem;
   color: #6e7681;
+  margin-bottom: 18px;
+  padding-left: 2px;
 }
-.legend-dot {
-  width: 11px; height: 11px;
-  border-radius: 3px;
-  flex-shrink: 0;
+
+/* ── MERMAID WRAP ── */
+.mermaid-wrap {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 14px;
+  padding: 28px 20px;
+  overflow-x: auto;
 }
+.mermaid-wrap--accent-blue  { border-color: #388bfd33; }
+.mermaid-wrap--accent-green { border-color: #3fb95033; }
+.mermaid-wrap--accent-gold  { border-color: #d2992233; }
+.mermaid { text-align: center; }
+
+/* ── DIVIDER ── */
+.divider {
+  border: none;
+  border-top: 1px solid #21262d;
+  margin: 0 auto 64px;
+  max-width: 1100px;
+}
+
+/* ── REDIS CARDS ── */
+.cards-section {
+  max-width: 1100px;
+  margin: 0 auto 64px;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.card {
+  background: #161b22;
+  border: 1px solid #c9354540;
+  border-radius: 12px;
+  padding: 20px 18px;
+}
+.card-icon { font-size: 1.3rem; margin-bottom: 8px; }
+.card h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ff7b72;
+  margin-bottom: 10px;
+}
+.card p {
+  font-size: 0.77rem;
+  line-height: 1.65;
+  color: #8b949e;
+  margin-bottom: 6px;
+}
+.card p:last-child { margin-bottom: 0; }
+.card code {
+  background: #21262d;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #cdd9e5;
+  font-family: 'Consolas', monospace;
+}
+.card strong { color: #cdd9e5; }
 </style>
 </head>
 <body>
 
-<h1 class="page-title">Как медицинский документ попадает в ЕГИСЗ</h1>
-<p class="page-sub">Путь от осмотра врача до государственного реестра</p>
-<p class="page-hint">Нажми на любой шаг — узнай, что происходит и почему</p>
-
-<div class="scroll-wrapper">
-
-  <!-- ════════════════════════════════════════════════
-       ФАЗА 1: ОТПРАВКА
-  ════════════════════════════════════════════════ -->
-  <p class="phase-label">① Врач отправляет документ</p>
-  <div class="flow-row">
-
-    <!-- ВРАЧ -->
-    <div class="svc actor">
-      <div class="svc-head">
-        <div class="svc-icon">🧑‍⚕️</div>
-        <div class="svc-name">Врач в оптике</div>
-        <span class="svc-tag">Пользователь</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('exam')">
-          <span class="step-num">1</span>
-          <span class="step-icon">👁️</span>
-          <span>Проводит проверку зрения и оформляет результат</span>
-        </div>
-        <div class="step" onclick="open_modal('btn')">
-          <span class="step-num">2</span>
-          <span class="step-icon">🖱️</span>
-          <span>Нажимает «Отправить в ЕГИСЗ»</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- → -->
-    <div class="conn">
-      <div class="arrow-wrap arr-fwd">
-        <div class="arrow-lbl">запрос</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- ФРОНТЕНД -->
-    <div class="svc frontend">
-      <div class="svc-head">
-        <div class="svc-icon">💻</div>
-        <div class="svc-name">Программа Optima</div>
-        <span class="svc-tag">Интерфейс</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('preview')">
-          <span class="step-num">3</span>
-          <span class="step-icon">📋</span>
-          <span>Показывает врачу предпросмотр документа</span>
-        </div>
-        <div class="step" onclick="open_modal('sign')">
-          <span class="step-num">4</span>
-          <span class="step-icon">✍️</span>
-          <span>Врач подтверждает — программа отправляет на сервер</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- → -->
-    <div class="conn">
-      <div class="arrow-wrap arr-fwd">
-        <div class="arrow-lbl">POST запрос</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- СЕРВЕР OPTIMA -->
-    <div class="svc backend">
-      <div class="svc-head">
-        <div class="svc-icon">🖥️</div>
-        <div class="svc-name">Сервер Optima</div>
-        <span class="svc-tag">optima-2-backend</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('agreement')">
-          <span class="step-num">5</span>
-          <span class="step-icon">📜</span>
-          <span>Проверяет, что пациент дал согласие на передачу данных</span>
-        </div>
-        <div class="step" onclick="open_modal('lock')">
-          <span class="step-num">6</span>
-          <span class="step-icon">🔒</span>
-          <span>Блокирует повторную отправку того же документа</span>
-        </div>
-        <div class="step" onclick="open_modal('firsttime')">
-          <span class="step-num">7</span>
-          <span class="step-icon">👤</span>
-          <span>Первый раз? Сначала регистрирует пациента в ЕГИСЗ</span>
-        </div>
-        <div class="step" onclick="open_modal('xml')">
-          <span class="step-num">8</span>
-          <span class="step-icon">📄</span>
-          <span>Формирует медицинский документ в нужном формате</span>
-        </div>
-        <div class="step" onclick="open_modal('toqueue')">
-          <span class="step-num">9</span>
-          <span class="step-icon">📤</span>
-          <span>Кладёт документ в очередь на отправку</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- → -->
-    <div class="conn">
-      <div class="arrow-wrap arr-fwd">
-        <div class="arrow-lbl">документ</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- ОЧЕРЕДЬ -->
-    <div class="svc queue">
-      <div class="svc-head">
-        <div class="svc-icon">📬</div>
-        <div class="svc-name">Очередь сообщений</div>
-        <span class="svc-tag">Apache Kafka</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('kafka')">
-          <span class="step-num">10</span>
-          <span class="step-icon">💾</span>
-          <span>Надёжно сохраняет документ и гарантирует доставку</span>
-        </div>
-        <div class="step" onclick="open_modal('kafka2')">
-          <span class="step-num">11</span>
-          <span class="step-icon">🔄</span>
-          <span>Сервер забирает документ и отправляет в ЕГИСЗ</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- → -->
-    <div class="conn">
-      <div class="arrow-wrap arr-fwd">
-        <div class="arrow-lbl">XML в ЕГИСЗ</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- ЕГИСЗ -->
-    <div class="svc egisz">
-      <div class="svc-head">
-        <div class="svc-icon">🏛️</div>
-        <div class="svc-name">ЕГИСЗ</div>
-        <span class="svc-tag">Федеральный реестр</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('egisz_recv')">
-          <span class="step-num">12</span>
-          <span class="step-icon">📥</span>
-          <span>Принимает медицинский документ</span>
-        </div>
-        <div class="step" onclick="open_modal('egisz_check')">
-          <span class="step-num">13</span>
-          <span class="step-icon">⚙️</span>
-          <span>Проверяет и регистрирует в государственном реестре</span>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /flow-row -->
-
-
-  <!-- ════════════════════════════════════════════════
-       ФАЗА 2: СТАТУС
-  ════════════════════════════════════════════════ -->
-  <p class="phase-label">② Система узнаёт результат</p>
-  <div class="flow-row">
-
-    <!-- ВРАЧ -->
-    <div class="svc actor">
-      <div class="svc-head">
-        <div class="svc-icon">🧑‍⚕️</div>
-        <div class="svc-name">Врач в оптике</div>
-        <span class="svc-tag">Пользователь</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('doc_sees')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">🔔</span>
-          <span>Видит статус: <span class="badge badge-ok">Принято</span> или <span class="badge badge-err">Отклонено</span></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ← -->
-    <div class="conn">
-      <div class="arrow-wrap arr-ret">
-        <div class="arrow-lbl">статус в UI</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- СЕРВЕР OPTIMA -->
-    <div class="svc backend">
-      <div class="svc-head">
-        <div class="svc-icon">🖥️</div>
-        <div class="svc-name">Сервер Optima</div>
-        <span class="svc-tag">optima-2-backend</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('status_update')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">📝</span>
-          <span>Получает финальный статус и обновляет карточку заказа</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ← -->
-    <div class="conn">
-      <div class="arrow-wrap arr-ret">
-        <div class="arrow-lbl">результат</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- ОЧЕРЕДЬ (пустая, просто разделитель) -->
-    <div class="svc queue">
-      <div class="svc-head">
-        <div class="svc-icon">📬</div>
-        <div class="svc-name">Очередь сообщений</div>
-        <span class="svc-tag">Apache Kafka</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('kafka_back')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">↩️</span>
-          <span>Передаёт статус обратно на сервер Optima</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ← -->
-    <div class="conn">
-      <div class="arrow-wrap arr-ret">
-        <div class="arrow-lbl">статус</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- СЕРВИС ЕГИСЗ -->
-    <div class="svc n3h">
-      <div class="svc-head">
-        <div class="svc-icon">🔗</div>
-        <div class="svc-name">Сервис интеграции</div>
-        <span class="svc-tag">n3health-backend</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('polling')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">🔍</span>
-          <span>Периодически спрашивает ЕГИСЗ: «Документ проверен?»</span>
-        </div>
-        <div class="step" onclick="open_modal('retry')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">⏳</span>
-          <span>Ждёт финального ответа, повторяет запросы автоматически</span>
-        </div>
-        <div class="step" onclick="open_modal('status_got')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">📊</span>
-          <span>Получает статус и отправляет его обратно через очередь</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ← (от ЕГИСЗ к сервису) -->
-    <div class="conn">
-      <div class="arrow-wrap arr-ret">
-        <div class="arrow-lbl">статус</div>
-        <div class="arrow-line"></div>
-      </div>
-    </div>
-
-    <!-- ЕГИСЗ -->
-    <div class="svc egisz">
-      <div class="svc-head">
-        <div class="svc-icon">🏛️</div>
-        <div class="svc-name">ЕГИСЗ</div>
-        <span class="svc-tag">Федеральный реестр</span>
-      </div>
-      <div class="svc-body">
-        <div class="step" onclick="open_modal('egisz_status')">
-          <span class="step-num">✓</span>
-          <span class="step-icon">📋</span>
-          <span>Отвечает: принят ли документ или есть ошибки</span>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /flow-row -->
-
-</div><!-- /scroll-wrapper -->
-
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#6e40c9"></div> Пользователь</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#1f6feb"></div> Интерфейс</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#388bfd"></div> Сервер Optima</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div> Очередь сообщений</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div> Сервис интеграции</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#f0883e"></div> ЕГИСЗ</div>
-</div>
-
-<!-- ════════════ MODAL ════════════ -->
-<div class="overlay" id="overlay" onclick="overlay_click(event)">
-  <div class="modal" id="modal">
-    <button class="modal-close" onclick="close_modal()">✕</button>
-    <div class="modal-icon" id="m-icon"></div>
-    <div class="modal-title" id="m-title"></div>
-    <div class="modal-body"  id="m-body"></div>
+<!-- ════════════ HEADER ════════════ -->
+<div class="page-header">
+  <h1 class="page-title">Интеграция медицинских документов с ЕГИСЗ</h1>
+  <p class="page-sub">Архитектура n3health-backend + optima-2-backend</p>
+  <div class="diagram-tags">
+    <span class="diagram-tag tag-c4">C4 Container</span>
+    <span class="diagram-tag tag-seq">Sequence Diagram</span>
+    <span class="diagram-tag tag-state">State Machine</span>
   </div>
 </div>
 
-<script>
-const CONTENT = {
 
-  exam: {
-    icon: '👁️',
-    title: 'Осмотр пациента',
-    body: `<p>Врач проводит проверку зрения и вносит результаты в программу Optima: остроту зрения, подбор линз, диагноз. Это обычная работа — пока никаких отправок не происходит.</p>
-           <p>После оформления осмотра врач видит кнопку «Отправить в ЕГИСЗ». Нажимать её нужно по закону — с 2019 года все медицинские организации обязаны передавать данные об осмотрах в государственную систему здравоохранения.</p>`
-  },
+<!-- ════════════════════════════════════════════════
+     1. C4 CONTAINER
+════════════════════════════════════════════════ -->
+<section class="diagram-section">
+  <div class="section-meta">
+    <span class="section-badge badge-c4">C4 Container</span>
+    <span class="section-title">Архитектура системы</span>
+  </div>
+  <p class="section-desc">Сервисы, хранилища, внешние системы и их связи</p>
+  <div class="mermaid-wrap mermaid-wrap--accent-blue">
+    <div class="mermaid">
+%%{init: {'theme': 'dark'}}%%
+C4Container
+    title Передача медицинских документов в ЕГИСЗ
 
-  btn: {
-    icon: '🖱️',
-    title: 'Нажатие кнопки «Отправить в ЕГИСЗ»',
-    body: `<p>Это явное действие врача — система не отправляет документы автоматически без его ведома. Врач сначала проверяет данные, а потом принимает решение об отправке.</p>
-           <p>До нажатия кнопки показывается предпросмотр документа — врач видит, что именно уйдёт в государственный реестр, и может всё перепроверить.</p>`
-  },
+    Person(doctor, "Врач", "Сотрудник оптики")
 
-  preview: {
-    icon: '📋',
-    title: 'Предпросмотр документа',
-    body: `<p>Программа показывает врачу, как будет выглядеть медицинский документ: данные пациента, результаты осмотра, реквизиты клиники и лицензия.</p>
-           <p>Это важно: ЕГИСЗ требует строго определённый формат документа (CDA — международный стандарт для медицинских записей). Если каких-то данных не хватает, программа предупредит об этом до отправки — чтобы врач мог всё исправить.</p>`
-  },
+    System_Boundary(optima, "Optima") {
+        Container(ui, "Optima UI", "React", "Интерфейс: заказы, отправка в ЕГИСЗ")
+        Container(be, "optima-2-backend", "Java / Spring Boot", "Бизнес-логика, сборка CDA XML, обработка финальных статусов")
+        ContainerDb(pg, "PostgreSQL", "RDBMS", "Заказы, пациенты, статусы документов")
+    }
 
-  sign: {
-    icon: '✍️',
-    title: 'Подтверждение и отправка',
-    body: `<p>Врач подтверждает, что документ верный, и нажимает «Подтвердить». Программа отправляет данные на сервер вместе с идентификаторами врача и клиники — для того, чтобы сервер знал, от кого и от какого подразделения пришёл документ.</p>`
-  },
+    System_Boundary(n3h_sys, "Интеграция с ЕГИСЗ") {
+        ContainerQueue(kafka, "Kafka", "Apache Kafka", "event-log.in  ·  event-log.out")
+        Container(n3h, "n3health-backend", "Java / Spring Boot", "Polling статусов, rate limiting, валидация НСИ")
+        ContainerDb(redis, "Redis", "Redisson / Bucket4j", "Distributed lock  ·  Rate limiter  ·  Кэш НСИ")
+    }
 
-  agreement: {
-    icon: '📜',
-    title: 'Проверка согласия пациента',
-    body: `<p>Прежде чем передать медицинские данные в государственный реестр, сервер проверяет: <strong>подписал ли пациент согласие на передачу персональных данных</strong>.</p>
-           <p>Это требование закона — без согласия пациента отправка данных в ЕГИСЗ нарушает его права. Согласие можно отозвать в любой момент, поэтому проверка происходит при каждой отправке, а не только один раз.</p>
-           <p>Если согласие есть — система его автоматически подтверждает и продолжает. Если нет — отправка останавливается.</p>`
-  },
+    System_Ext(egisz, "ЕГИСЗ", "Федеральная система Минздрава РФ")
+    System_Ext(nsi_sys, "НСИ Минздрава", "Справочники: специальности, регионы, коды")
 
-  lock: {
-    icon: '🔒',
-    title: 'Защита от двойной отправки',
-    body: `<p>Представьте: врач дважды нажал кнопку, или соединение прервалось и программа автоматически повторила запрос. Без защиты в ЕГИСЗ попало бы два одинаковых документа — это серьёзная ошибка в федеральном реестре.</p>
-           <p><strong>Что делает система:</strong> когда начинается отправка, сервер ставит «пометку» на этот заказ. Если придёт второй запрос на ту же отправку — система его отклонит и вернёт сообщение «уже отправляется».</p>
-           <p>Пометка хранится в быстрой базе данных (Redis) и автоматически снимается после завершения отправки.</p>`
-  },
+    Rel(doctor, ui, "Отправить документ")
+    Rel(ui, be, "POST /send-to-n3health", "HTTPS")
+    Rel(be, redis, "tryLock CAS(0→1) / release", "Redisson")
+    Rel(be, pg, "Читать и обновить заказ", "JPA")
+    Rel(be, kafka, "Publish AddMedRecordXml", "event-log.in")
+    Rel(kafka, n3h, "Consume (MAX_POLL_RECORDS=1)", "event-log.in")
+    Rel(n3h, redis, "Rate limit + кэш НСИ", "Bucket4j / Redisson")
+    Rel(n3h, egisz, "POST XML · GET /eventLog/{id}", "HTTPS")
+    Rel(n3h, nsi_sys, "Проверить версию справочника", "HTTPS")
+    Rel(n3h, kafka, "Publish финальный статус", "event-log.out")
+    Rel(kafka, be, "Consume статус", "event-log.out")
+    Rel(be, ui, "Статус обновлён")
+    Rel(ui, doctor, "Принято ✅ / Отклонено ❌")
 
-  firsttime: {
-    icon: '👤',
-    title: 'Первичная регистрация пациента',
-    body: `<p>ЕГИСЗ устроен так: прежде чем принять медицинский документ о пациенте, он должен знать, что этот пациент вообще существует в системе.</p>
-           <p>При <strong>первой отправке</strong> документа для конкретного пациента система сначала отправляет его данные (ФИО, СНИЛС, паспорт) в Мастер-индекс пациентов — федеральный справочник всех пациентов страны. И только после этого отправляет сам медицинский документ.</p>
-           <p>При всех следующих отправках этот шаг пропускается — пациент уже зарегистрирован.</p>`
-  },
+    UpdateElementStyle(doctor, $fontColor="#e2d9f3", $bgColor="#1a1038", $borderColor="#6e40c9")
+    UpdateElementStyle(ui, $fontColor="#cae8ff", $bgColor="#0d2136", $borderColor="#1f6feb")
+    UpdateElementStyle(be, $fontColor="#cae8ff", $bgColor="#131d2e", $borderColor="#388bfd")
+    UpdateElementStyle(pg, $fontColor="#cdd9e5", $bgColor="#1c2128", $borderColor="#484f58")
+    UpdateElementStyle(kafka, $fontColor="#fff3cd", $bgColor="#1e1208", $borderColor="#d29922")
+    UpdateElementStyle(n3h, $fontColor="#d2f4dc", $bgColor="#0d1f14", $borderColor="#3fb950")
+    UpdateElementStyle(redis, $fontColor="#ffd7d7", $bgColor="#1e0808", $borderColor="#c93545")
+    UpdateElementStyle(egisz, $fontColor="#ffe0b2", $bgColor="#1f1206", $borderColor="#f0883e")
+    UpdateElementStyle(nsi_sys, $fontColor="#ffe0b2", $bgColor="#1f1206", $borderColor="#f0883e")
+    </div>
+  </div>
+</section>
 
-  xml: {
-    icon: '📄',
-    title: 'Формирование медицинского документа',
-    body: `<p>ЕГИСЗ не принимает документы в произвольном виде. Сервер формирует документ строго по международному стандарту <strong>CDA (Clinical Document Architecture)</strong> — это требование Минздрава РФ для всех медицинских систем.</p>
-           <p>Документ содержит: данные пациента, данные врача и клиники (включая лицензию), результаты осмотра, дату и подпись. Всё упаковывается в формат XML — структурированный текстовый файл.</p>
-           <p>Для формирования нужны данные из нескольких источников: карточка пациента, данные клиники, справочники Минздрава (коды регионов, специальностей). Если чего-то не хватает — документ не сформируется, и врач получит понятное сообщение об ошибке.</p>`
-  },
+<hr class="divider">
 
-  toqueue: {
-    icon: '📤',
-    title: 'Документ кладётся в очередь',
-    body: `<p>Вместо того чтобы сразу отправить документ в ЕГИСЗ, сервер <strong>помещает его в очередь сообщений</strong>. Это ключевое архитектурное решение.</p>
-           <p><strong>Зачем:</strong> ЕГИСЗ — государственная система, которая может быть медленной или временно недоступной. Если отправлять напрямую, врач будет ждать ответа несколько секунд или минут, а при ошибке документ может потеряться.</p>
-           <p>С очередью: документ надёжно сохранён, сервер отвечает врачу мгновенно («принято в обработку»), а реальная отправка в ЕГИСЗ происходит в фоне. Даже если ЕГИСЗ сейчас недоступен — очередь повторит попытку автоматически.</p>`
-  },
 
-  kafka: {
-    icon: '💾',
-    title: 'Очередь сообщений — надёжное хранение',
-    body: `<p><strong>Очередь сообщений (Apache Kafka)</strong> — это специальная система, которая работает как надёжный «почтовый ящик» между разными частями приложения.</p>
-           <p>Документ, попавший в очередь, не потеряется — даже если сервер перезапустится или ЕГИСЗ будет недоступен несколько часов. Очередь хранит его до тех пор, пока он не будет успешно доставлен.</p>
-           <p>Ещё важно: очередь гарантирует <strong>порядок</strong> — документы одной клиники обрабатываются строго по очереди. Это нужно, чтобы «зарегистрировать пациента» точно было обработано раньше «добавить медицинскую запись».</p>`
-  },
+<!-- ════════════════════════════════════════════════
+     2. SEQUENCE DIAGRAM
+════════════════════════════════════════════════ -->
+<section class="diagram-section">
+  <div class="section-meta">
+    <span class="section-badge badge-seq">Sequence Diagram</span>
+    <span class="section-title">Поток сообщений — happy path + ключевые ветки</span>
+  </div>
+  <p class="section-desc">Пронумерованная последовательность вызовов между сервисами</p>
+  <div class="mermaid-wrap mermaid-wrap--accent-green">
+    <div class="mermaid">
+%%{init: {'theme': 'dark', 'sequence': {'showSequenceNumbers': true, 'mirrorActors': false, 'actorFontSize': 13, 'noteFontSize': 12}}}%%
+sequenceDiagram
+    actor Врач
+    participant BE as optima-2-backend
+    participant Redis
+    participant Kafka
+    participant N3H as n3health-backend
+    participant EGISZ as ЕГИСЗ
 
-  kafka2: {
-    icon: '🔄',
-    title: 'Сервер забирает документ и отправляет в ЕГИСЗ',
-    body: `<p>Сервер Optima «подписан» на очередь — он автоматически забирает документы по мере их появления и отправляет напрямую в API ЕГИСЗ через N3Health.</p>
-           <p>Если ЕГИСЗ вернул ошибку — документ остаётся в очереди и будет отправлен повторно. Если отправка успешна — сервер записывает к заказу комментарий «отправлено в ЕГИСЗ» и инициирует проверку статуса.</p>`
-  },
+    Врач->>BE: Нажать «Отправить в ЕГИСЗ»
+    BE->>Redis: tryLock CAS(0→1) по orderId+clientId
 
-  egisz_recv: {
-    icon: '📥',
-    title: 'ЕГИСЗ принимает документ',
-    body: `<p><strong>ЕГИСЗ (Единая государственная информационная система в сфере здравоохранения)</strong> — федеральная система Минздрава, куда стекаются медицинские данные со всей страны.</p>
-           <p>Когда ЕГИСЗ принимает документ, это ещё не значит, что он одобрен. Документ встаёт в очередь на проверку: сначала автоматическая валидация (правильно ли заполнены поля, есть ли все обязательные данные), потом регистрация в реестре.</p>`
-  },
+    alt lock уже занят
+        Redis-->>BE: false
+        BE-->>Врач: 409 — уже отправляется
+    else lock взят (TTL 3 дня)
+        Redis-->>BE: true
 
-  egisz_check: {
-    icon: '⚙️',
-    title: 'Проверка в ЕГИСЗ',
-    body: `<p>ЕГИСЗ проверяет документ по нескольким критериям: правильность формата CDA, наличие обязательных полей, корректность СНИЛС пациента и врача, актуальность лицензии клиники.</p>
-           <p>Возможные результаты:<br>
-           <strong>✅ Принято (код 4)</strong> — документ зарегистрирован в реестре<br>
-           <strong>⏳ В обработке (коды 0, 1)</strong> — ещё проверяется, нужно подождать<br>
-           <strong>❌ Ошибка (коды 2, 3, 5)</strong> — документ отклонён, нужно исправить данные</p>
-           <p>Проверка может занять от нескольких минут до нескольких часов — ЕГИСЗ не даёт моментального ответа.</p>`
-  },
+        opt Первая отправка для этого пациента
+            BE->>Kafka: AddPatientXml → event-log.in
+        end
 
-  polling: {
-    icon: '🔍',
-    title: 'Периодический опрос статуса',
-    body: `<p>ЕГИСЗ не присылает уведомления о результате — наша система сама периодически спрашивает: <em>«Ну как там, проверили?»</em></p>
-           <p>Этим занимается отдельный маленький сервис (<strong>n3health-backend</strong>), созданный специально для работы с ЕГИСЗ. Он хранит очередь запросов на проверку и опрашивает ЕГИСЗ с умными паузами — чтобы не перегружать государственную систему и не получить блокировку за слишком частые запросы.</p>`
-  },
+        BE->>Kafka: AddMedRecordXml → event-log.in
+        BE-->>Врач: 200 OK — принято в обработку
 
-  retry: {
-    icon: '⏳',
-    title: 'Автоматические повторы',
-    body: `<p>Пока ЕГИСЗ отвечает «ещё в обработке» — сервис терпеливо ждёт и повторяет запрос. Паузы между попытками автоматически увеличиваются: сначала 30 секунд, потом минута, потом две — чтобы не перегружать ЕГИСЗ.</p>
-           <p>Если ЕГИСЗ временно недоступен — сервис тоже не сдаётся: у него есть «автоматический предохранитель» (circuit breaker), который при серии неудач временно останавливает запросы, а через время пробует снова.</p>
-           <p>Если что-то пошло совсем не так — команда получает уведомление в Slack.</p>`
-  },
+        Kafka->>N3H: consume (MAX_POLL_RECORDS=1, AckMode=MANUAL)
+        N3H->>Redis: проверить rate limit (Bucket4j)
+        N3H->>EGISZ: POST AddMedRecord XML
+        EGISZ-->>N3H: eventLogId (принято на проверку)
 
-  status_got: {
-    icon: '📊',
-    title: 'Получен финальный статус',
-    body: `<p>Как только ЕГИСЗ вернул финальный ответ («принято» или «отклонено»), сервис интеграции упаковывает его и отправляет обратно через очередь сообщений на сервер Optima.</p>
-           <p>При отклонении документа система также автоматически обновляет свои справочные данные (коды регионов, специальностей Минздрава) — потому что часто причина отклонения в том, что какой-то код устарел.</p>`
-  },
+        loop Polling — пока !isFinished(статус)
+            N3H->>Redis: проверить rate limit
+            N3H->>EGISZ: GET /eventLog/{eventLogId}
+            EGISZ-->>N3H: IN_QUEUE / IN_PROGRESS → @RetryableTopic
+        end
 
-  kafka_back: {
-    icon: '↩️',
-    title: 'Очередь передаёт статус обратно',
-    body: `<p>Статус документа возвращается тем же путём — через очередь сообщений. Это сделано намеренно: сервис интеграции с ЕГИСЗ не знает, где живёт сервер Optima, и не обращается к нему напрямую.</p>
-           <p>Такая архитектура позволяет каждому сервису работать независимо — если один из них перезапускается, другие продолжают работать, а сообщения не теряются.</p>`
-  },
+        EGISZ-->>N3H: финальный статус SUCCESS или FAIL
 
-  status_update: {
-    icon: '📝',
-    title: 'Обновление статуса заказа',
-    body: `<p>Сервер Optima получает статус из очереди и обновляет карточку заказа: записывает результат («принято в ЕГИСЗ» или «отклонено с причиной»), добавляет комментарий с датой и деталями.</p>
-           <p>После этого врач, открыв заказ в программе, сразу видит актуальный статус. Если документ был отклонён — система показывает причину, чтобы врач мог исправить данные и отправить повторно.</p>`
-  },
+        opt При FAIL — НСИ могла устареть
+            N3H->>Redis: обновить кэш НСИ (shadow-write rename)
+        end
 
-  doc_sees: {
-    icon: '🔔',
-    title: 'Врач видит результат',
-    body: `<p>В карточке заказа появляется статус: <strong style="color:#3fb950">«Принято в ЕГИСЗ»</strong> или <strong style="color:#f85149">«Отклонено: [причина]»</strong>.</p>
-           <p>Если принято — всё хорошо, обязанность выполнена. Если отклонено — врач видит причину (например: «неверно указан СНИЛС» или «истекла лицензия клиники») и может исправить данные и отправить повторно.</p>
-           <p>Весь процесс — от нажатия кнопки до получения статуса — обычно занимает от нескольких минут до нескольких часов в зависимости от загруженности ЕГИСЗ.</p>`
-  }
+        N3H->>Kafka: финальный статус → event-log.out
+        Kafka->>BE: consume (N3HealthEventLogResponseHandler)
+        BE->>Redis: release lock (delete ключа)
+        BE->>BE: обновить заказ + добавить комментарий
+        BE-->>Врач: Принято ✅ или Отклонено ❌
+    end
+    </div>
+  </div>
+</section>
 
-};
+<hr class="divider">
 
-function open_modal(key) {
-  const d = CONTENT[key];
-  if (!d) return;
-  document.getElementById('m-icon').textContent  = d.icon;
-  document.getElementById('m-title').textContent = d.title;
-  document.getElementById('m-body').innerHTML    = d.body;
-  document.getElementById('overlay').classList.add('open');
-}
 
-function close_modal() {
-  document.getElementById('overlay').classList.remove('open');
-}
+<!-- ════════════════════════════════════════════════
+     3. STATE MACHINE
+════════════════════════════════════════════════ -->
+<section class="diagram-section">
+  <div class="section-meta">
+    <span class="section-badge badge-state">State Machine</span>
+    <span class="section-title">Жизненный цикл статуса медицинского документа</span>
+  </div>
+  <p class="section-desc">Переходы MedDocumentStatus — кто, при каком условии и с каким побочным эффектом</p>
+  <div class="mermaid-wrap mermaid-wrap--accent-gold">
+    <div class="mermaid">
+%%{init: {'theme': 'dark'}}%%
+stateDiagram-v2
+    direction LR
 
-function overlay_click(e) {
-  if (e.target === document.getElementById('overlay')) close_modal();
-}
+    state "null\n(не отправлен)" as NONE
+    state "IN_PROGRESS\n(отправка / polling)" as IN_PROGRESS
+    state "SUCCESS ✅" as SUCCESS
+    state "FAIL ❌" as FAIL
+    state "BAD_REQUEST ⚠️" as BAD_REQUEST
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') close_modal();
-});
-</script>
+    [*] --> NONE : заказ создан
+
+    NONE --> IN_PROGRESS : врач нажал «Отправить»\nRedis lock взят (CAS 0→1)
+
+    IN_PROGRESS --> IN_PROGRESS : ЕГИСЗ — IN_QUEUE / IN_PROGRESS\n@RetryableTopic с задержкой
+
+    IN_PROGRESS --> SUCCESS : ЕГИСЗ — код 4\nlock снят → повтор недоступен*
+
+    IN_PROGRESS --> FAIL : ЕГИСЗ — коды 2,3,5\nНСИ обновлена в Redis\nlock снят → повтор доступен
+
+    IN_PROGRESS --> BAD_REQUEST : HTTP 4xx от ЕГИСЗ\n→ Dead Letter Topic\nlock снят → повтор доступен
+
+    FAIL --> IN_PROGRESS : врач повторил отправку\nlock взят снова
+
+    BAD_REQUEST --> IN_PROGRESS : врач повторил отправку\nlock взят снова
+
+    SUCCESS --> [*]
+    </div>
+  </div>
+  <p style="font-size:0.7rem; color:#444c56; margin-top:10px; padding-left:4px;">* SUCCESS — финальный статус, повторная отправка не предусмотрена логикой UI</p>
+</section>
+
+<hr class="divider">
+
+
+<!-- ════════════════════════════════════════════════
+     REDIS В ДЕТАЛЯХ
+════════════════════════════════════════════════ -->
+<section class="cards-section">
+  <div class="section-meta" style="margin-bottom:6px">
+    <span class="section-title" style="font-size:0.95rem; color:#ff7b72;">Redis: три независимые роли</span>
+  </div>
+  <p class="section-desc">Одно хранилище используется для трёх разных задач</p>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>Distributed Lock</h3>
+      <p>Атомарный <strong>CAS(0→1)</strong> через <code>RAtomicLong.compareAndSet()</code>. Ключ: <code>n3health:only-once-lock:{tenant}:orders:{orderId}:clients:{clientId}</code></p>
+      <p>TTL 3 дня. Если <code>false</code> → <code>N3healthRequestAlreadySentException</code>. Снимается через <code>delete()</code> при любом финальном статусе.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">⏱️</div>
+      <h3>Rate Limiter (Bucket4j)</h3>
+      <p>Глобальный лимит на HTTP-запросы к ЕГИСЗ — <strong>суммарно по всем подам</strong>. Реализован через <code>RedissonBasedProxyManager</code> с CAS-счётчиком.</p>
+      <p>При превышении → <code>EventLogStatusLimitExceededException</code> → <code>@Retryable</code> с exponential backoff (2с → 4с → 8с...).</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">📚</div>
+      <h3>Кэш НСИ (shadow-write)</h3>
+      <p>Справочники Минздрава (коды специальностей, регионов) нужны при сборке CDA XML. Хранятся в <code>RMap&lt;Integer, NsiSubject&gt;</code>.</p>
+      <p>Обновление без простоя: записать в <code>nsi:{id}:data:{ts}</code> → атомарный <code>rename</code> через <code>RTransaction</code>. Инициируется при получении статуса FAIL.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
 </body>
 </html>
